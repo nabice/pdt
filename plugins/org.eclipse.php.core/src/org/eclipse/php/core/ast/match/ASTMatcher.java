@@ -637,6 +637,16 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getLeft(), o.getLeft()));
 	}
 
+	public boolean match(MatchExpression node, Object other) {
+		if (!(other instanceof MatchExpression)) {
+			return false;
+		}
+		MatchExpression o = (MatchExpression) other;
+
+		return (safeSubtreeMatch(node.getSubject(), o.getSubject())
+				&& safeSubtreeListMatch(node.arms(), o.arms()));
+	}
+
 	// TODO - need to check the contents of the html
 	public boolean match(InLineHtml node, Object other) {
 		if (!(other instanceof InLineHtml)) {
@@ -846,6 +856,16 @@ public class ASTMatcher {
 
 		return (safeEquals(node.isDefault(), o.isDefault()) && safeSubtreeMatch(node.getValue(), o.getValue())
 				&& safeSubtreeListMatch(node.actions(), o.actions()));
+	}
+
+	public boolean match(MatchArm node, Object other) {
+		if (!(other instanceof MatchArm)) {
+			return false;
+		}
+		MatchArm o = (MatchArm) other;
+
+		return (safeEquals(node.isDefault(), o.isDefault()) && safeSubtreeListMatch(node.conditionals(), o.conditionals())
+				&& safeSubtreeMatch(node.getValue(), o.getValue()));
 	}
 
 	public boolean match(SwitchStatement node, Object other) {

@@ -122,6 +122,8 @@ public abstract class ASTNode implements Visitable {
 	public static final int EMPTY_EXPRESSION = 79;
 	public static final int ARROW_FUNCTION_DECLARATION = 80;
 	public static final int ARRAY_SPREAD_ELEMENT = 81;
+	public static final int MATCH_EXPRESSION = 82;
+	public static final int MATCH_ARM = 82;
 
 	/**
 	 * Internal convenience constant indicating that there is definite risk of
