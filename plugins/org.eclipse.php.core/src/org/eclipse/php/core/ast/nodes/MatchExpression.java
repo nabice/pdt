@@ -49,7 +49,7 @@ public class MatchExpression extends Expression {
             MatchExpression.class, "subject", Expression.class, MANDATORY, //$NON-NLS-1$
             CYCLE_RISK);
 	public static final ChildListPropertyDescriptor ARMS_PROPERTY = new ChildListPropertyDescriptor(MatchExpression.class,
-																											"arms", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+																											"arms", MatchArm.class, CYCLE_RISK); //$NON-NLS-1$
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}), or null if uninitialized.
