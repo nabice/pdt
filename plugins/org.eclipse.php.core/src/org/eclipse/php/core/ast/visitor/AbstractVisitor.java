@@ -816,4 +816,32 @@ public abstract class AbstractVisitor implements Visitor {
 	@Override
 	public void endVisit(FinallyClause node) {
 	}
+
+	// php8.0
+	@Override
+	public boolean visit(MatchArm node) {
+		return true;
+	}
+
+	@Override
+	public void endVisit(MatchArm node) {
+	}
+
+	@Override
+	public boolean visit(MatchExpression node) {
+		return true;
+	}
+
+	@Override
+	public void endVisit(MatchExpression node) {
+	}
+
+	@Override
+	public boolean visit(NamedArg node) {
+		return true;
+	}
+
+	@Override
+	public void endVisit(NamedArg node) {
+	}
 }

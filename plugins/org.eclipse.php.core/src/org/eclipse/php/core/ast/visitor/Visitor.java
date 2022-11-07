@@ -404,4 +404,17 @@ public interface Visitor {
 	boolean visit(AnonymousClassDeclaration anonymousClassDeclaration);
 
 	void endVisit(AnonymousClassDeclaration anonymousClassDeclaration);
+
+	//php8.0
+	boolean visit(MatchExpression matchExpression);
+
+	void endVisit(MatchExpression matchExpression);
+
+	boolean visit(MatchArm matchArm);
+
+	void endVisit(MatchArm matchArm);
+
+	boolean visit(NamedArg namedArg);
+
+	void endVisit(NamedArg namedArg);
 }

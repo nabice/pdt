@@ -1759,6 +1759,10 @@ expr:expr
 {:
 	RESULT = new PrefixExpression(ellleft, exprright, parser.ast, expr, PrefixExpression.OP_UNPACK);
 :}
+| identifier:id T_NEKUDOTAIM expr:expr
+{:
+	RESULT = new NamedArg(idleft, exprright, parser.ast, expr, id);
+:}
 ;
 
 type_expr ::=

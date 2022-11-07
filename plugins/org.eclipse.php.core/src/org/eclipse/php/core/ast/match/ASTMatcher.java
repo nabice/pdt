@@ -916,6 +916,16 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getExpression(), o.getExpression()));
 	}
 
+	public boolean match(NamedArg node, Object other) {
+		if (!(other instanceof NamedArg)) {
+			return false;
+		}
+		NamedArg o = (NamedArg) other;
+
+		return (safeEquals(node.getName(), o.getName())
+				&& safeSubtreeMatch(node.getExpression(), o.getExpression()));
+	}
+
 	public boolean match(Variable node, Object other) {
 		if (!(other instanceof Variable)) {
 			return false;
