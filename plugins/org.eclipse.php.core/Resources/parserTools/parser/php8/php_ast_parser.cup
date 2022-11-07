@@ -335,6 +335,9 @@ non terminal VariableBase constant;
 non terminal VariableBase static_member;
 non terminal VariableBase new_variable;
 non terminal List isset_variables;
+non terminal MatchArm match_arm_pair;
+non terminal List expr_list;
+non terminal List match_arm_list;
 
 non terminal ClassName class_name_reference;
 
@@ -596,6 +599,10 @@ T_INCLUDE:v
 	RESULT = v;
 :}
 | T_ENDSWITCH:v
+{:
+	RESULT = v;
+:}
+| T_MATCH:v
 {:
 	RESULT = v;
 :}
@@ -2213,6 +2220,20 @@ echo_expr_list:exprList T_COMMA expr:expr
 :}
 ;
 
+expr_list ::=
+expr_list:exprList T_COMMA expr:expr
+{:
+	exprList.add(expr);
+	RESULT = exprList;
+:}
+| expr:expr
+{:
+	List exprList = new LinkedList();
+	exprList.add(expr);
+	RESULT = exprList;
+:}
+;
+
 for_expr ::=
 /* empty */
 {:
@@ -2666,6 +2687,11 @@ T_DOUBLE_ARROW expr:expr
 {:
 	RESULT = new ArrowFunctionDeclaration(modifierleft, exprright, parser.ast, paramList,
 		expr, isReference.booleanValue(), true, returnType);
+:}
+
+| T_MATCH:token T_OPEN_PARENTHESE expr:expr T_CLOSE_PARENTHESE T_CURLY_OPEN match_arm_list:armList possible_comma T_CURLY_CLOSE:e
+{:
+	RESULT = new MatchExpression(tokenleft, eright, parser.ast, expr, armList);
 :}
 ;
 
@@ -3218,6 +3244,31 @@ possible_array_pair:pair
 		list.add(new EmptyExpression(pairright, parser.ast));
 	}
 	RESULT = list;
+:}
+;
+
+match_arm_pair ::=
+expr_list:conditionals possible_comma T_DOUBLE_ARROW expr:value
+{:
+	RESULT = new MatchArm(conditionalsleft, valueright, parser.ast, conditionals, value, false);
+:}
+| T_DEFAULT:d possible_comma T_DOUBLE_ARROW expr:value
+{:
+    RESULT = new MatchArm(dleft, valueright, parser.ast, null, value, true);
+:}
+;
+
+match_arm_list ::=
+match_arm_list:matchArmList T_COMMA match_arm_pair:matchArmPair
+{:
+	matchArmList.add(matchArmPair);
+	RESULT = matchArmList;
+:}
+| match_arm_pair:matchArmPair
+{:
+	List matchArmList = new LinkedList();
+	matchArmList.add(matchArmPair);
+	RESULT = matchArmList;
 :}
 ;
 

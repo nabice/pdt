@@ -65,10 +65,9 @@ public class MatchArm extends Statement {
 	public MatchArm(int start, int end, AST ast, List<Expression> conditionals, Expression value, boolean isDefault) {
 		super(start, end, ast);
 
-		if (conditionals == null) {
-			throw new IllegalArgumentException();
+		if (conditionals != null) {
+			this.conditionals.addAll(conditionals);
 		}
-		this.conditionals.addAll(conditionals);
 		if (value != null) {
 			setValue(value);
 		}
