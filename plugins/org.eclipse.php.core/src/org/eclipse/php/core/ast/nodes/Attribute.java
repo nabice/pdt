@@ -35,12 +35,13 @@ import java.util.List;
  */
 public class Attribute extends ASTNode {
 
-	private String name;
+	private Expression className;
 	private NodeList<Expression> args = new NodeList<>(ARGS_PROPERTY);
 
 
-	public static final SimplePropertyDescriptor NAME_PROPERTY = new SimplePropertyDescriptor(Attribute.class,
-																							  "name", String.class, MANDATORY); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor CLASSNAME_PROPERTY = new ChildPropertyDescriptor(
+			Attribute.class, "className", Expression.class, //$NON-NLS-1$
+			MANDATORY, CYCLE_RISK);
 	public static final ChildListPropertyDescriptor ARGS_PROPERTY = new ChildListPropertyDescriptor(Attribute.class,
 																									"args", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
@@ -52,15 +53,18 @@ public class Attribute extends ASTNode {
 
 	static {
 		List<StructuralPropertyDescriptor> list = new ArrayList<>(1);
-		list.add(NAME_PROPERTY);
+		list.add(CLASSNAME_PROPERTY);
 		list.add(ARGS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(list);
 	}
 
-	public Attribute(int start, int end, AST ast, String name, List<Expression> args) {
+	public Attribute(int start, int end, AST ast, Expression className, List<Expression> args) {
 		super(start, end, ast);
+		if (className == null) {
+			throw new IllegalArgumentException();
+		}
 
-		setName(name);
+		setClassName(className);
 		if(args != null) {
 			this.args.addAll(args);
 		}
@@ -81,6 +85,9 @@ public class Attribute extends ASTNode {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (className != null) {
+			className.accept(visitor);
+		}
 		for (ASTNode node : this.args) {
 			node.accept(visitor);
 		}
@@ -88,6 +95,9 @@ public class Attribute extends ASTNode {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (className != null) {
+			className.traverseBottomUp(visitor);
+		}
 		for (ASTNode node : this.args) {
 			node.traverseBottomUp(visitor);
 		}
@@ -97,6 +107,9 @@ public class Attribute extends ASTNode {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (className != null) {
+			className.traverseTopDown(visitor);
+		}
 		for (ASTNode node : this.args) {
 			node.traverseTopDown(visitor);
 		}
@@ -106,7 +119,10 @@ public class Attribute extends ASTNode {
 	public void toString(StringBuilder buffer, String tab) {
 		buffer.append(tab).append("<Attribute"); //$NON-NLS-1$
 		appendInterval(buffer);
-		buffer.append(" name='").append(name).append("'>"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("'>"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (className != null) {
+			className.toString(buffer, TAB + tab);
+		}
 		for (ASTNode node : this.args) {
 			node.toString(buffer, TAB + tab);
 			buffer.append("\n"); //$NON-NLS-1$
@@ -139,8 +155,9 @@ public class Attribute extends ASTNode {
 
 	@Override
 	ASTNode clone0(AST target) {
+		final Expression cn = ASTNode.copySubtree(target, getClassName());
 		final List<Expression> args = ASTNode.copySubtrees(target, args());
-		return new Attribute(this.getStart(), this.getEnd(), target, name, args);
+		return new Attribute(this.getStart(), this.getEnd(), target, cn, args);
 	}
 
 	@Override
@@ -148,21 +165,18 @@ public class Attribute extends ASTNode {
 		return PROPERTY_DESCRIPTORS;
 	}
 
-	/*
-	 * (omit javadoc for this method) Method declared on ASTNode.
-	 */
 	@Override
-	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
-		if (property == NAME_PROPERTY) {
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == CLASSNAME_PROPERTY) {
 			if (get) {
-				return getName();
+				return getClassName();
 			} else {
-				setName((String) value);
+				setClassName((Expression) child);
 				return null;
 			}
 		}
 		// allow default implementation to flag the error
-		return super.internalGetSetObjectProperty(property, get, value);
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	/*
@@ -182,20 +196,37 @@ public class Attribute extends ASTNode {
 	}
 
 
+
 	/**
-	 * @return arg name
+	 * Class name of this instance creation node
+	 *
+	 * @return class name
 	 */
-	public String getName() {
-		return name;
+	public Expression getClassName() {
+		return className;
 	}
 
 	/**
-	 * Sets the name of this named arg
+	 * Sets the class name of this instansiation.
+	 *
+	 * @param classname
+	 *            the new class name
+	 * @exception IllegalArgumentException
+	 *                if:
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
-	public final void setName(String name) {
-		preValueChange(NAME_PROPERTY);
-		this.name = name;
-		postValueChange(NAME_PROPERTY);
+	public void setClassName(Expression classname) {
+		if (classname == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.className;
+		preReplaceChild(oldChild, classname, CLASSNAME_PROPERTY);
+		this.className = classname;
+		postReplaceChild(oldChild, classname, CLASSNAME_PROPERTY);
 	}
 
 }

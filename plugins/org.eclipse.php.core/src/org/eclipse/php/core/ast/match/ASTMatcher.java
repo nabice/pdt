@@ -643,7 +643,7 @@ public class ASTMatcher {
 		}
 		Attribute o = (Attribute) other;
 
-		return (safeSubtreeMatch(node.getName(), o.getName())
+		return (safeSubtreeMatch(node.getClassName(), o.getClassName())
 				&& safeSubtreeListMatch(node.args(), o.args()));
 	}
 

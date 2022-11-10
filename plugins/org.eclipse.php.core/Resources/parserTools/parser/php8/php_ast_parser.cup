@@ -359,11 +359,11 @@ non terminal Integer trait_modifiers;
 non terminal ClassInstanceCreation new_expr;
 non terminal AnonymousClassDeclaration anonymous_class;
 
-non terminal Expression attribute_decl;
-non terminal Expression attribute_group;
-non terminal Expression attribute;
-non terminal Expression attributes;
-non terminal Expression optional_attributes;
+non terminal Attribute attribute_decl;
+non terminal List attribute_group;
+non terminal AttributeGroup attribute;
+non terminal List attributes;
+non terminal List optional_attributes;
 
 //php5.5
 non terminal FinallyClause finally_clause;
@@ -3349,7 +3349,7 @@ attribute_group:attributeGroup T_COMMA attribute_decl:attributeDecl
 attribute ::=
 T_ATTRIBUTE:s attribute_group:attributeGroup possible_comma:comma T_CLOSE_RECT:e
 {:
-    RESULT = new AttributeGroup(sleft, eright, parser.ast, attributeGroup)
+    RESULT = new AttributeGroup(sleft, eright, parser.ast, attributeGroup);
 :}
 ;
 
