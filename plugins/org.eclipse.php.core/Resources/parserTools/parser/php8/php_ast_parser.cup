@@ -1311,7 +1311,16 @@ is_reference ::=
 ;
 
 unticked_function_declaration_statement ::=
-optional_attributes:attrs T_FUNCTION:s is_reference:isReference string_st:fn
+T_FUNCTION:s is_reference:isReference string_st:fn
+T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
+T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
+{:
+	RESULT = new FunctionDeclaration(sleft, blockEndright, parser.ast,
+		new Identifier(fnleft, fnright, parser.ast, fn), paramList,
+		new Block(blockStartleft, blockEndright, parser.ast, sList), isReference.booleanValue(), returnType, null);
+:}
+
+| attributes:attrs T_FUNCTION:s is_reference:isReference string_st:fn
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
@@ -2668,7 +2677,39 @@ T_LIST:s T_OPEN_PARENTHESE assignment_list:varList T_CLOSE_PARENTHESE:close T_EQ
 			new Identifier(sleft, sright, parser.ast, "print")), expList);
 :}
 
-| optional_attributes:attrs T_FUNCTION:s is_reference:isReference
+| T_FUNCTION:s is_reference:isReference
+T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
+T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
+{:
+	RESULT = new LambdaFunctionDeclaration(sleft, blockEndright, parser.ast, paramList, varsList,
+		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), false, -1, returnType, null);
+:}
+
+| T_STATIC:modifier T_FUNCTION:s is_reference:isReference
+T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
+T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
+{:
+	RESULT = new LambdaFunctionDeclaration(modifierleft, blockEndright, parser.ast, paramList, varsList,
+		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), true, returnType, null);
+:}
+
+| T_FN:s is_reference:isReference
+T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
+T_DOUBLE_ARROW expr:expr
+{:
+	RESULT = new ArrowFunctionDeclaration(sleft, exprright, parser.ast, paramList,
+		expr, isReference.booleanValue(), false, returnType, null);
+:}
+
+| T_STATIC:modifier T_FN:s is_reference:isReference
+T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
+T_DOUBLE_ARROW expr:expr
+{:
+	RESULT = new ArrowFunctionDeclaration(modifierleft, exprright, parser.ast, paramList,
+		expr, isReference.booleanValue(), true, returnType, null);
+:}
+
+| attributes:attrs T_FUNCTION:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 {:
@@ -2676,7 +2717,7 @@ T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), false, -1, returnType, attrs);
 :}
 
-| optional_attributes:attrs T_STATIC:modifier T_FUNCTION:s is_reference:isReference
+| attributes:attrs T_STATIC:modifier T_FUNCTION:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 {:
@@ -2684,7 +2725,7 @@ T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), true, returnType, attrs);
 :}
 
-| optional_attributes:attrs T_FN:s is_reference:isReference
+| attributes:attrs T_FN:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_DOUBLE_ARROW expr:expr
 {:
@@ -2692,7 +2733,7 @@ T_DOUBLE_ARROW expr:expr
 		expr, isReference.booleanValue(), false, returnType, attrs);
 :}
 
-| optional_attributes:attrs T_STATIC:modifier T_FN:s is_reference:isReference
+| attributes:attrs T_STATIC:modifier T_FN:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_DOUBLE_ARROW expr:expr
 {:
