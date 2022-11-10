@@ -757,6 +757,7 @@ NOWDOC_CHARS=([^\n\r]|({NEWLINE}{TABS_AND_SPACES})+[^a-zA-Z_\u0080-\uffff\n\r \t
 	">"                     {return createSymbol(ParserConstants.T_LGREATER);}
 	"?"                     {return createSymbol(ParserConstants.T_QUESTION_MARK);}
 	"@"                     {return createSymbol(ParserConstants.T_AT);}
+	"#["                    {return createSymbol(ParserConstants.T_ATTRIBUTE);}
 }
 
 <ST_IN_SCRIPTING>"{" {

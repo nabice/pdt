@@ -23,6 +23,7 @@ public abstract class TypeDeclaration extends Statement {
 	private Identifier name;
 	protected ASTNode.NodeList<Identifier> interfaces = new ASTNode.NodeList<>(getInterfacesProperty());;
 	private Block body;
+	protected ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(getAttrGroupsProperty());
 
 	/**
 	 * The structural property of this node type.
@@ -31,10 +32,12 @@ public abstract class TypeDeclaration extends Statement {
 
 	protected abstract ChildListPropertyDescriptor getInterfacesProperty();
 
+	protected abstract ChildListPropertyDescriptor getAttrGroupsProperty();
+
 	protected abstract ChildPropertyDescriptor getBodyProperty();
 
 	public TypeDeclaration(int start, int end, AST ast, final Identifier name, final Identifier[] interfaces,
-			final Block body) {
+			final Block body, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (name == null || body == null) {
@@ -47,6 +50,9 @@ public abstract class TypeDeclaration extends Statement {
 			for (Identifier identifier : interfaces) {
 				this.interfaces.add(identifier);
 			}
+		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
 		}
 	}
 
@@ -92,6 +98,10 @@ public abstract class TypeDeclaration extends Statement {
 	 */
 	public List<Identifier> interfaces() {
 		return this.interfaces;
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	/**
@@ -157,6 +167,11 @@ public abstract class TypeDeclaration extends Statement {
 		if (property == getInterfacesProperty()) {
 			return interfaces();
 		}
+
+		if (property == getAttrGroupsProperty()) {
+			return getAttrGroups();
+		}
+
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}

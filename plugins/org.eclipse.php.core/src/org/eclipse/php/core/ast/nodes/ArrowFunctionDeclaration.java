@@ -40,6 +40,7 @@ public class ArrowFunctionDeclaration extends Expression {
 			FORMAL_PARAMETERS_PROPERTY);
 	private Expression body;
 	private ReturnType returnType;
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -60,6 +61,10 @@ public class ArrowFunctionDeclaration extends Expression {
 			ArrowFunctionDeclaration.class, "returnType", ReturnType.class, //$NON-NLS-1$
 			OPTIONAL, CYCLE_RISK);
 
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}), or null if uninitialized.
@@ -73,11 +78,12 @@ public class ArrowFunctionDeclaration extends Expression {
 		propertyList.add(FORMAL_PARAMETERS_PROPERTY);
 		propertyList.add(BODY_PROPERTY);
 		propertyList.add(RETURN_TYPE_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
 	public ArrowFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
-			Expression body, final boolean isReference, final boolean isStatic, Identifier returnType) {
+			Expression body, final boolean isReference, final boolean isStatic, Identifier returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (formalParameters == null) {
@@ -97,10 +103,17 @@ public class ArrowFunctionDeclaration extends Expression {
 			setBody(body);
 		}
 		setStatic(isStatic);
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	public ArrowFunctionDeclaration(AST ast) {
 		super(ast);
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	@Override
@@ -114,6 +127,12 @@ public class ArrowFunctionDeclaration extends Expression {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
+
 		for (ASTNode node : this.formalParameters) {
 			node.accept(visitor);
 		}
@@ -128,6 +147,11 @@ public class ArrowFunctionDeclaration extends Expression {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		for (ASTNode node : this.formalParameters) {
 			node.traverseTopDown(visitor);
 		}
@@ -141,6 +165,12 @@ public class ArrowFunctionDeclaration extends Expression {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
+
 		for (ASTNode node : this.formalParameters) {
 			node.traverseBottomUp(visitor);
 		}
@@ -182,6 +212,16 @@ public class ArrowFunctionDeclaration extends Expression {
 			buffer.append("\n"); //$NON-NLS-1$
 		}
 		buffer.append(TAB).append(tab).append("</FunctionBody>\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</ArrowFunctionDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -350,6 +390,9 @@ public class ArrowFunctionDeclaration extends Expression {
 		if (property == FORMAL_PARAMETERS_PROPERTY) {
 			return formalParameters();
 		}
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -369,8 +412,9 @@ public class ArrowFunctionDeclaration extends Expression {
 		final List<FormalParameter> formalParams = ASTNode.copySubtrees(target, formalParameters());
 		final boolean isRef = isReference();
 		final Identifier returnType = ASTNode.copySubtree(target, getReturnType());
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		return new ArrowFunctionDeclaration(getStart(), getEnd(), target, formalParams, body, isRef, isStatic(),
-				returnType);
+				returnType, attrGroups);
 	}
 
 	@Override

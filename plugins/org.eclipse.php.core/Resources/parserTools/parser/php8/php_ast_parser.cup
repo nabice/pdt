@@ -358,6 +358,12 @@ non terminal Integer trait_modifiers;
 non terminal ClassInstanceCreation new_expr;
 non terminal AnonymousClassDeclaration anonymous_class;
 
+non terminal Expression attribute_decl;
+non terminal Expression attribute_group;
+non terminal Expression attribute;
+non terminal Expression attributes;
+non terminal Expression optional_attributes;
+
 //php5.5
 non terminal FinallyClause finally_clause;
 non terminal FinallyClause non_empty_finally_clause;
@@ -819,7 +825,7 @@ statement:statement
 
 | T_CONST:left const_list:list T_SEMICOLON:e
 {:
-	RESULT = new ConstantDeclaration(leftleft, eright, parser.ast, list[0], list[1]);
+	RESULT = new ConstantDeclaration(leftleft, eright, parser.ast, list[0], list[1], null);
 :}
 ;
 
@@ -1304,40 +1310,40 @@ is_reference ::=
 ;
 
 unticked_function_declaration_statement ::=
-T_FUNCTION:s is_reference:isReference string_st:fn
+optional_attributes:attrs T_FUNCTION:s is_reference:isReference string_st:fn
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
 	RESULT = new FunctionDeclaration(sleft, blockEndright, parser.ast,
 		new Identifier(fnleft, fnright, parser.ast, fn), paramList,
-		new Block(blockStartleft, blockEndright, parser.ast, sList), isReference.booleanValue(), returnType);
+		new Block(blockStartleft, blockEndright, parser.ast, sList), isReference.booleanValue(), returnType, attrs);
 :}
 ;
 
 unticked_class_declaration_statement ::=
-class_entry_type:modifier T_STRING:className
+optional_attributes:attrs class_entry_type:modifier T_STRING:className
 extends_from:superClass implements_list:interfaces
 T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
 	if (modifier.intValue() == ClassDeclaration.MODIFIER_TRAIT) {
 		RESULT = new TraitDeclaration(modifierleft, blockEndright, parser.ast, ClassDeclaration.MODIFIER_NONE,
 			new Identifier(classNameleft, classNameright, parser.ast, className), superClass, interfaces,
-			new Block(blockStartleft, blockEndright, parser.ast, sList));
+			new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 	}else{
 		RESULT = new ClassDeclaration(modifierleft, blockEndright, parser.ast, modifier.intValue(),
 			new Identifier(classNameleft, classNameright, parser.ast, className), superClass, interfaces,
-			new Block(blockStartleft, blockEndright, parser.ast, sList));
+			new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 	}
 :}
 
 |
-interface_entry:s T_STRING:className
+optional_attributes:attrs interface_entry:s T_STRING:className
 interface_extends_list:interfaces
 T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
 	RESULT = new InterfaceDeclaration(sleft, blockEndright, parser.ast,
 		new Identifier(classNameleft, classNameright, parser.ast, className), interfaces,
-		new Block(blockStartleft, blockEndright, parser.ast, sList));
+		new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 :}
 ;
 
@@ -1662,49 +1668,49 @@ parameter:parameter
 ;
 
 parameter ::=
-optional_type:type T_VARIABLE:var
+optional_attributes:attrs optional_type:type T_VARIABLE:var
 {:
 	int s = type == null ? varleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, v);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, v, attrs);
 :}
 
-| optional_type:type T_ELLIPSIS:e T_VARIABLE:var
+| optional_attributes:attrs optional_type:type T_ELLIPSIS:e T_VARIABLE:var
 {:
 	int s = type == null ? eleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, v, null, false, true);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, v, null, false, true, attrs);
 :}
 
-| optional_type:type T_REFERENCE:ref T_VARIABLE:var
+| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, attrs);
 :}
 
-| optional_type:type T_REFERENCE:ref T_ELLIPSIS T_VARIABLE:var
+| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_ELLIPSIS T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, null, false, true);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, null, false, true, attrs);
 :}
 
-| optional_type:type T_VARIABLE:var T_EQUAL expr:expr
+| optional_attributes:attrs optional_type:type T_VARIABLE:var T_EQUAL expr:expr
 {:
 	int s = type == null ? varleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, exprright, parser.ast, type, v, expr);
+	RESULT = new FormalParameter(s, exprright, parser.ast, type, v, expr, attrs);
 :}
 
-| optional_type:type T_REFERENCE:ref T_VARIABLE:var T_EQUAL expr:expr
+| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_VARIABLE:var T_EQUAL expr:expr
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, exprright, parser.ast, type, ref_var, expr);
+	RESULT = new FormalParameter(s, exprright, parser.ast, type, ref_var, expr, attrs);
 :}
 ;
 
@@ -1879,26 +1885,26 @@ class_statement_list:list class_statement:classStatement
 ;
 
 class_statement ::=
-variable_modifiers:modifier optional_type:type property_list:decList T_SEMICOLON:e
+optional_attributes:attrs variable_modifiers:modifier optional_type:type property_list:decList T_SEMICOLON:e
 {:
-	RESULT = new FieldsDeclaration(modifierleft, eright, parser.ast, modifier.intValue(), type, decList);
+	RESULT = new FieldsDeclaration(modifierleft, eright, parser.ast, modifier.intValue(), type, decList, attrs);
 :}
 
-| method_modifiers:modifier T_CONST:c class_const_list:list T_SEMICOLON:e
+| optional_attributes:attrs method_modifiers:modifier T_CONST:c class_const_list:list T_SEMICOLON:e
 {:
 	int methodStart = modifier == null ? cleft : modifierleft;
 	int modifierValue = modifier == null ? 0 : modifier.intValue();
-	RESULT = new ConstantDeclaration(methodStart, eright, parser.ast, modifierValue, list);
+	RESULT = new ConstantDeclaration(methodStart, eright, parser.ast, modifierValue, list, attrs);
 :}
 
-| method_modifiers:modifier T_FUNCTION:s is_reference:isReference identifier:fn
+| optional_attributes:attrs method_modifiers:modifier T_FUNCTION:s is_reference:isReference identifier:fn
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 method_body:body
 {:
 	int methodStart = modifier == null ? sleft : modifierleft;
 	modifier = modifier == null ? PHPAstParser.PUBLIC : modifier;
 	Identifier functionId = new Identifier(fnleft, fnright, parser.ast, fn);
-	FunctionDeclaration functionDeclaration = new FunctionDeclaration(sleft, bodyright, parser.ast, functionId, paramList, body, isReference.booleanValue(), returnType);
+	FunctionDeclaration functionDeclaration = new FunctionDeclaration(sleft, bodyright, parser.ast, functionId, paramList, body, isReference.booleanValue(), returnType, attrs);
 	RESULT = new MethodDeclaration(methodStart, bodyright, parser.ast, modifier.intValue(), functionDeclaration, true);
 :}
 
@@ -2266,11 +2272,11 @@ non_empty_for_expr:exprList T_COMMA expr:expr
 ;
 
 anonymous_class ::=
-extends_from:superClass implements_list:interfaces
+optional_attributes:attrs extends_from:superClass implements_list:interfaces
 T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
 	Block body = new Block(blockStartleft, blockEndright, parser.ast, sList);
-	RESULT = new AnonymousClassDeclaration(superClassleft, blockEndright, parser.ast, superClass, interfaces, body);
+	RESULT = new AnonymousClassDeclaration(superClassleft, blockEndright, parser.ast, superClass, interfaces, body, attrs);
 :}
 ;
 
@@ -2661,36 +2667,36 @@ T_LIST:s T_OPEN_PARENTHESE assignment_list:varList T_CLOSE_PARENTHESE:close T_EQ
 			new Identifier(sleft, sright, parser.ast, "print")), expList);
 :}
 
-| T_FUNCTION:s is_reference:isReference
+| optional_attributes:attrs T_FUNCTION:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 {:
 	RESULT = new LambdaFunctionDeclaration(sleft, blockEndright, parser.ast, paramList, varsList,
-		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), false, -1, returnType);
+		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), false, -1, returnType, attrs);
 :}
 
-| T_STATIC:modifier T_FUNCTION:s is_reference:isReference
+| optional_attributes:attrs T_STATIC:modifier T_FUNCTION:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE lexical_vars:varsList return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:list T_CURLY_CLOSE:blockEnd
 {:
 	RESULT = new LambdaFunctionDeclaration(modifierleft, blockEndright, parser.ast, paramList, varsList,
-		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), true, returnType);
+		new Block(blockStartleft, blockEndright, parser.ast, list), isReference.booleanValue(), true, returnType, attrs);
 :}
 
-| T_FN:s is_reference:isReference
+| optional_attributes:attrs T_FN:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_DOUBLE_ARROW expr:expr
 {:
 	RESULT = new ArrowFunctionDeclaration(sleft, exprright, parser.ast, paramList,
-		expr, isReference.booleanValue(), false, returnType);
+		expr, isReference.booleanValue(), false, returnType, attrs);
 :}
 
-| T_STATIC:modifier T_FN:s is_reference:isReference
+| optional_attributes:attrs T_STATIC:modifier T_FN:s is_reference:isReference
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_DOUBLE_ARROW expr:expr
 {:
 	RESULT = new ArrowFunctionDeclaration(modifierleft, exprright, parser.ast, paramList,
-		expr, isReference.booleanValue(), true, returnType);
+		expr, isReference.booleanValue(), true, returnType, attrs);
 :}
 
 | T_MATCH:token T_OPEN_PARENTHESE expr:expr T_CLOSE_PARENTHESE T_CURLY_OPEN match_arm_list:armList possible_comma T_CURLY_CLOSE:e
@@ -3273,6 +3279,62 @@ match_arm_list:matchArmList T_COMMA match_arm_pair:matchArmPair
 	List matchArmList = new LinkedList();
 	matchArmList.add(matchArmPair);
 	RESULT = matchArmList;
+:}
+;
+
+attribute_decl ::=
+class_name:className ctor_arguments:ctor
+{:
+    RESULT= new Attribute(classNameleft, ctorright, parser.ast, className, ctor);
+:}
+;
+
+attribute_group ::=
+attribute_group:attributeGroup T_COMMA attribute_decl:attributeDecl
+{:
+	attributeGroup.add(attributeDecl);
+	RESULT = attributeGroup;
+:}
+
+| attribute_decl:attributeDecl
+{:
+	List attributeGroup = new LinkedList();
+	attributeGroup.add(attributeDecl);
+	RESULT = attributeGroup;
+:}
+;
+
+attribute ::=
+T_ATTRIBUTE:s attribute_group:attributeGroup possible_comma:comma T_CLOSE_RECT:e
+{:
+    RESULT = new AttributeGroup(sleft, eright, parser.ast, attributeGroup)
+:}
+;
+
+attributes ::=
+attributes:attrs attribute:attribute
+{:
+    attrs.add(attribute);
+    RESULT= attrs;
+:}
+
+| attribute:attribute
+{:
+	List attrs = new LinkedList();
+	attrs.add(attribute);
+	RESULT = attrs;
+:}
+;
+
+optional_attributes ::=
+/* empty */
+{:
+	RESULT = null;
+:}
+
+| attributes:attributes
+{:
+	RESULT = attributes;
 :}
 ;
 

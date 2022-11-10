@@ -35,6 +35,7 @@ public class FieldsDeclaration extends BodyDeclaration {
 
 	private Expression fieldsType;
 	private final ASTNode.NodeList<SingleFieldDeclaration> fields = new ASTNode.NodeList<>(FIELDS_PROPERTY);
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -45,6 +46,9 @@ public class FieldsDeclaration extends BodyDeclaration {
 			FieldsDeclaration.class, "fieldsType", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor FIELDS_PROPERTY = new ChildListPropertyDescriptor(
 			FieldsDeclaration.class, "fields", SingleFieldDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	@Override
 	public final SimplePropertyDescriptor getModifierProperty() {
@@ -62,11 +66,12 @@ public class FieldsDeclaration extends BodyDeclaration {
 		properyList.add(MODIFIER_PROPERTY);
 		properyList.add(FIELDS_TYPE_PROPERTY);
 		properyList.add(FIELDS_PROPERTY);
+		properyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(properyList);
 	}
 
 	public FieldsDeclaration(int start, int end, AST ast, int modifier, Expression type,
-			List<SingleFieldDeclaration> variablesAndDefaults) {
+			List<SingleFieldDeclaration> variablesAndDefaults, List<AttributeGroup> attrGroups) {
 		super(start, end, ast, modifier);
 
 		if (variablesAndDefaults == null || variablesAndDefaults.size() == 0) {
@@ -87,14 +92,17 @@ public class FieldsDeclaration extends BodyDeclaration {
 				this.fields.add(field);
 			}
 		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	/**
 	 * @since PHP 7.4
 	 */
 	public FieldsDeclaration(int start, int end, AST ast, int modifier,
-			List<SingleFieldDeclaration> variablesAndDefaults) {
-		this(start, end, ast, modifier, null, variablesAndDefaults);
+			List<SingleFieldDeclaration> variablesAndDefaults, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, modifier, null, variablesAndDefaults, attrGroups);
 	}
 
 	public FieldsDeclaration(AST ast) {
@@ -108,6 +116,10 @@ public class FieldsDeclaration extends BodyDeclaration {
 		return result;
 	}
 
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
+	}
+
 	@Override
 	public void accept0(Visitor visitor) {
 		final boolean visit = visitor.visit(this);
@@ -119,6 +131,11 @@ public class FieldsDeclaration extends BodyDeclaration {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		if (fieldsType != null) {
 			fieldsType.accept(visitor);
 		}
@@ -130,6 +147,12 @@ public class FieldsDeclaration extends BodyDeclaration {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
+
 		if (fieldsType != null) {
 			fieldsType.accept(visitor);
 		}
@@ -140,6 +163,11 @@ public class FieldsDeclaration extends BodyDeclaration {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
 		if (fieldsType != null) {
 			fieldsType.accept(visitor);
 		}
@@ -174,6 +202,16 @@ public class FieldsDeclaration extends BodyDeclaration {
 			}
 			buffer.append(tab).append(TAB).append("</InitialValue>\n"); //$NON-NLS-1$
 		}
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</FieldsDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -245,6 +283,11 @@ public class FieldsDeclaration extends BodyDeclaration {
 		if (property == FIELDS_PROPERTY) {
 			return fields();
 		}
+
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
+
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -277,7 +320,8 @@ public class FieldsDeclaration extends BodyDeclaration {
 		final Expression type = ASTNode.copySubtree(target, this.getFieldsType());
 		final List<SingleFieldDeclaration> fields = ASTNode.copySubtrees(target, fields());
 		final int modifier = getModifier();
-		return new FieldsDeclaration(getStart(), getEnd(), target, modifier, type, fields);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new FieldsDeclaration(getStart(), getEnd(), target, modifier, type, fields, attrGroups);
 	}
 
 	@Override

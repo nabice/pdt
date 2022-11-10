@@ -35,6 +35,8 @@ public class FormalParameter extends ASTNode {
 	private Expression parameterType;
 	private Expression parameterName;
 	private Expression defaultValue;
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
+
 	/**
 	 * @deprecated
 	 */
@@ -54,6 +56,9 @@ public class FormalParameter extends ASTNode {
 			FormalParameter.class, "isMandatory", Boolean.class, OPTIONAL); //$NON-NLS-1$
 	public static final SimplePropertyDescriptor IS_VARIADIC_PROPERTY = new SimplePropertyDescriptor(
 			FormalParameter.class, "isVariadic", Boolean.class, OPTIONAL); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -67,12 +72,8 @@ public class FormalParameter extends ASTNode {
 		properyList.add(PARAMETER_NAME_PROPERTY);
 		properyList.add(DEFAULT_VALUE_PROPERTY);
 		properyList.add(IS_VARIADIC_PROPERTY);
+		properyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS_PHP5 = Collections.unmodifiableList(properyList);
-		properyList = new ArrayList<>(4);
-		properyList.add(PARAMETER_TYPE_PROPERTY);
-		properyList.add(PARAMETER_NAME_PROPERTY);
-		properyList.add(DEFAULT_VALUE_PROPERTY);
-		properyList.add(IS_MANDATORY_PROPERTY);
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class FormalParameter extends ASTNode {
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
-			Expression defaultValue, boolean isMandatory, boolean isVariadic) {
+			Expression defaultValue, boolean isMandatory, boolean isVariadic, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (parameterName == null) {
@@ -100,34 +101,41 @@ public class FormalParameter extends ASTNode {
 		}
 		setIsMandatory(isMandatory);
 		setIsVariadic(isVariadic);
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	private FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
-			Expression defaultValue, boolean isMandatory) {
-		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false);
+			Expression defaultValue, boolean isMandatory, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false, attrGroups);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
-			Expression defaultValue) {
-		this(start, end, ast, type, parameterName, defaultValue, false);
+			Expression defaultValue, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName,
-			Expression defaultValue) {
-		this(start, end, ast, type, parameterName, defaultValue, false);
+			Expression defaultValue, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups);
 	}
 
-	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName) {
-		this(start, end, ast, type, parameterName, null, false);
+	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, null, false, attrGroups);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
-			boolean isMandatory) {
-		this(start, end, ast, type, parameterName, null, isMandatory);
+			boolean isMandatory, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, null, isMandatory, attrGroups);
 	}
 
-	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName) {
-		this(start, end, ast, type, parameterName, null, false);
+	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, type, parameterName, null, false, attrGroups);
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	@Override
@@ -141,6 +149,12 @@ public class FormalParameter extends ASTNode {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
+
 		if (parameterType != null) {
 			parameterType.accept(visitor);
 		}
@@ -153,6 +167,12 @@ public class FormalParameter extends ASTNode {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
+
 		if (parameterType != null) {
 			parameterType.traverseTopDown(visitor);
 		}
@@ -164,6 +184,12 @@ public class FormalParameter extends ASTNode {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
+
 		if (parameterType != null) {
 			parameterType.traverseBottomUp(visitor);
 		}
@@ -199,6 +225,16 @@ public class FormalParameter extends ASTNode {
 			buffer.append("\n"); //$NON-NLS-1$
 		}
 		buffer.append(TAB).append(tab).append("</DefaultValue>\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</FormalParameter>"); //$NON-NLS-1$
 	}
 
@@ -384,6 +420,16 @@ public class FormalParameter extends ASTNode {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
+	@Override
+	final List<? extends ASTNode> internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
+
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
 	/**
 	 * @return Identifier name of the formal parameter name
 	 */
@@ -418,8 +464,9 @@ public class FormalParameter extends ASTNode {
 		final Expression value = ASTNode.copySubtree(target, this.getDefaultValue());
 		final boolean isMandatory = this.isMandatory();
 		final boolean isVariadic = this.isVariadic();
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		final FormalParameter result = new FormalParameter(this.getStart(), this.getEnd(), target, type, name, value,
-				isMandatory, isVariadic);
+				isMandatory, isVariadic, attrGroups);
 		return result;
 	}
 

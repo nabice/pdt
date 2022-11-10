@@ -21,8 +21,8 @@ import org.eclipse.php.core.ast.visitor.Visitor;
 public class TraitDeclaration extends ClassDeclaration {
 
 	public TraitDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
-			List<Identifier> interfaces, Block body) {
-		super(start, end, ast, modifier, className, superClass, interfaces, body);
+			List<Identifier> interfaces, Block body, List<AttributeGroup> attrGroups) {
+		super(start, end, ast, modifier, className, superClass, interfaces, body, attrGroups);
 	}
 
 	public TraitDeclaration(AST ast) {
@@ -45,9 +45,10 @@ public class TraitDeclaration extends ClassDeclaration {
 		final Block body = ASTNode.copySubtree(target, getBody());
 		final int modifier = getModifier();
 		final Identifier name = ASTNode.copySubtree(target, getName());
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 
 		final TraitDeclaration result = new TraitDeclaration(getStart(), getEnd(), target, modifier, name, getName(),
-				interfaces(), body);
+				interfaces(), body, attrGroups);
 		return result;
 	}
 
@@ -63,6 +64,16 @@ public class TraitDeclaration extends ClassDeclaration {
 
 		getBody().toString(buffer, TAB + tab);
 		buffer.append("\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</TraitDeclaration>"); //$NON-NLS-1$
 	}
 

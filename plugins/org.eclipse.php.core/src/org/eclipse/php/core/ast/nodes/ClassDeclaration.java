@@ -56,6 +56,9 @@ public class ClassDeclaration extends TypeDeclaration {
 			ClassDeclaration.class, "superClass", Expression.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
 			ClassDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	@Override
 	protected ChildPropertyDescriptor getBodyProperty() {
@@ -65,6 +68,11 @@ public class ClassDeclaration extends TypeDeclaration {
 	@Override
 	protected ChildListPropertyDescriptor getInterfacesProperty() {
 		return INTERFACES_PROPERTY;
+	}
+
+	@Override
+	protected ChildListPropertyDescriptor getAttrGroupsProperty() {
+		return ATTR_GROUPS_PROPERTY;
 	}
 
 	@Override
@@ -85,12 +93,13 @@ public class ClassDeclaration extends TypeDeclaration {
 		propertyList.add(BODY_PROPERTY);
 		propertyList.add(SUPER_CLASS_PROPERTY);
 		propertyList.add(MODIFIER_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
 	private ClassDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
-			Identifier[] interfaces, Block body) {
-		super(start, end, ast, className, interfaces, body);
+			Identifier[] interfaces, Block body, List<AttributeGroup> attrGroups) {
+		super(start, end, ast, className, interfaces, body, attrGroups);
 
 		setModifier(modifier);
 		if (superClass != null) {
@@ -103,9 +112,9 @@ public class ClassDeclaration extends TypeDeclaration {
 	}
 
 	public ClassDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
-			List<Identifier> interfaces, Block body) {
+			List<Identifier> interfaces, Block body, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, modifier, className, superClass,
-				interfaces == null ? null : interfaces.toArray(new Identifier[interfaces.size()]), body);
+				interfaces == null ? null : interfaces.toArray(new Identifier[interfaces.size()]), body, attrGroups);
 	}
 
 	@Override
@@ -119,6 +128,12 @@ public class ClassDeclaration extends TypeDeclaration {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
+
 		getName().accept(visitor);
 		if (superClass != null) {
 			superClass.accept(visitor);
@@ -133,6 +148,11 @@ public class ClassDeclaration extends TypeDeclaration {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		getName().traverseTopDown(visitor);
 		if (superClass != null) {
 			superClass.traverseTopDown(visitor);
@@ -146,6 +166,12 @@ public class ClassDeclaration extends TypeDeclaration {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
+
 		getName().traverseBottomUp(visitor);
 		if (superClass != null) {
 			superClass.traverseBottomUp(visitor);
@@ -197,6 +223,16 @@ public class ClassDeclaration extends TypeDeclaration {
 		buffer.append(tab).append(TAB).append("</Interfaces>\n"); //$NON-NLS-1$
 		getBody().toString(buffer, TAB + tab);
 		buffer.append("\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</ClassDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -300,7 +336,8 @@ public class ClassDeclaration extends TypeDeclaration {
 		final int modifier = getModifier();
 		final List<Identifier> interfaces = ASTNode.copySubtrees(target, interfaces());
 		final Identifier name = ASTNode.copySubtree(target, getName());
-		return new ClassDeclaration(getStart(), getEnd(), target, modifier, name, superName, interfaces, body);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new ClassDeclaration(getStart(), getEnd(), target, modifier, name, superName, interfaces, body, attrGroups);
 	}
 
 	@Override

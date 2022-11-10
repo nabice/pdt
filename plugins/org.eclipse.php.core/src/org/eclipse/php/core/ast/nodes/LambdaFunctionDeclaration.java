@@ -40,6 +40,7 @@ public class LambdaFunctionDeclaration extends Expression {
 	private final ASTNode.NodeList<Expression> lexicalVariables = new ASTNode.NodeList<>(LEXICAL_VARIABLES_PROPERTY);
 	private Block body;
 	private ReturnType returnType;
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -62,6 +63,9 @@ public class LambdaFunctionDeclaration extends Expression {
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = new ChildPropertyDescriptor(
 			LambdaFunctionDeclaration.class, "returnType", ReturnType.class, //$NON-NLS-1$
 			OPTIONAL, CYCLE_RISK);
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -77,26 +81,18 @@ public class LambdaFunctionDeclaration extends Expression {
 		propertyList.add(LEXICAL_VARIABLES_PROPERTY);
 		propertyList.add(BODY_PROPERTY);
 		propertyList.add(RETURN_TYPE_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
-			List<Expression> lexicalVars, Block body, final boolean isReference) {
-		this(start, end, ast, formalParameters, lexicalVars, body, isReference, false);
+			List<Expression> lexicalVars, Block body, final boolean isReference, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, false, attrGroups);
 	}
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
-			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic) {
-		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
-			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
-			int staticStart, Identifier returnType) {
-		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, returnType);
+			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null, attrGroups);
 	}
 
 	/**
@@ -104,13 +100,22 @@ public class LambdaFunctionDeclaration extends Expression {
 	 */
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
-			int staticStart) {
-		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null);
+			int staticStart, Identifier returnType, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, returnType, attrGroups);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
+			int staticStart, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null, attrGroups);
 	}
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
-			Identifier returnType) {
+			Identifier returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (formalParameters == null) {
@@ -136,6 +141,9 @@ public class LambdaFunctionDeclaration extends Expression {
 			setBody(body);
 		}
 		setStatic(isStatic);
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	public LambdaFunctionDeclaration(AST ast) {
@@ -153,6 +161,11 @@ public class LambdaFunctionDeclaration extends Expression {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		for (ASTNode node : this.formalParameters) {
 			node.accept(visitor);
 		}
@@ -170,6 +183,11 @@ public class LambdaFunctionDeclaration extends Expression {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		for (ASTNode node : this.formalParameters) {
 			node.traverseTopDown(visitor);
 		}
@@ -186,6 +204,11 @@ public class LambdaFunctionDeclaration extends Expression {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
 		for (ASTNode node : this.formalParameters) {
 			node.traverseBottomUp(visitor);
 		}
@@ -237,7 +260,21 @@ public class LambdaFunctionDeclaration extends Expression {
 			buffer.append("\n"); //$NON-NLS-1$
 		}
 		buffer.append(TAB).append(tab).append("</FunctionBody>\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</LambdaFunctionDeclaration>"); //$NON-NLS-1$
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	@Override
@@ -417,6 +454,11 @@ public class LambdaFunctionDeclaration extends Expression {
 		if (property == LEXICAL_VARIABLES_PROPERTY) {
 			return lexicalVariables();
 		}
+
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
+
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -437,8 +479,9 @@ public class LambdaFunctionDeclaration extends Expression {
 		final List<Expression> lexicalVars = ASTNode.copySubtrees(target, lexicalVariables());
 		final boolean isRef = isReference();
 		final Identifier returnType = ASTNode.copySubtree(target, getReturnType());
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		return new LambdaFunctionDeclaration(getStart(), getEnd(), target, formalParams, lexicalVars, body, isRef,
-				isStatic(), returnType);
+				isStatic(), returnType, attrGroups);
 	}
 
 	@Override

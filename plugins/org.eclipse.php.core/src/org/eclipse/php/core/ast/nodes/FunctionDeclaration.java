@@ -46,6 +46,7 @@ public class FunctionDeclaration extends Statement {
 			FORMAL_PARAMETERS_PROPERTY);
 	private Block body;
 	private ReturnType returnType;
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -65,6 +66,10 @@ public class FunctionDeclaration extends Statement {
 			FunctionDeclaration.class, "returnType", ReturnType.class, //$NON-NLS-1$
 			OPTIONAL, CYCLE_RISK);
 
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}), or null if uninitialized.
@@ -78,16 +83,17 @@ public class FunctionDeclaration extends Statement {
 		propertyList.add(FORMAL_PARAMETERS_PROPERTY);
 		propertyList.add(BODY_PROPERTY);
 		propertyList.add(RETURN_TYPE_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
 	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
-			List<FormalParameter> formalParameters, Block body, final boolean isReference) {
-		this(start, end, ast, functionName, formalParameters, body, isReference, null);
+			List<FormalParameter> formalParameters, Block body, final boolean isReference, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, functionName, formalParameters, body, isReference, null, attrGroups);
 	}
 
 	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
-			List<FormalParameter> formalParameters, Block body, final boolean isReference, Identifier returnType) {
+			List<FormalParameter> formalParameters, Block body, final boolean isReference, Identifier returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (functionName == null || formalParameters == null) {
@@ -106,10 +112,17 @@ public class FunctionDeclaration extends Statement {
 		if (body != null) {
 			setBody(body);
 		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	public FunctionDeclaration(AST ast) {
 		super(ast);
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	@Override
@@ -123,6 +136,11 @@ public class FunctionDeclaration extends Statement {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		name.accept(visitor);
 		for (ASTNode node : this.formalParameters) {
 			node.accept(visitor);
@@ -138,6 +156,11 @@ public class FunctionDeclaration extends Statement {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		name.traverseTopDown(visitor);
 		for (ASTNode node : this.formalParameters) {
 			node.traverseTopDown(visitor);
@@ -152,6 +175,11 @@ public class FunctionDeclaration extends Statement {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
 		name.traverseBottomUp(visitor);
 		for (ASTNode node : this.formalParameters) {
 			node.traverseBottomUp(visitor);
@@ -193,6 +221,16 @@ public class FunctionDeclaration extends Statement {
 			buffer.append("\n"); //$NON-NLS-1$
 		}
 		buffer.append(TAB).append(tab).append("</FunctionBody>\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</FunctionDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -385,6 +423,11 @@ public class FunctionDeclaration extends Statement {
 		if (property == FORMAL_PARAMETERS_PROPERTY) {
 			return formalParameters();
 		}
+
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
+
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -405,7 +448,8 @@ public class FunctionDeclaration extends Statement {
 		final List<FormalParameter> formalParams = ASTNode.copySubtrees(target, formalParameters());
 		final boolean isRef = isReference();
 		final Identifier returnType = ASTNode.copySubtree(target, getReturnType());
-		return new FunctionDeclaration(getStart(), getEnd(), target, function, formalParams, body, isRef, returnType);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new FunctionDeclaration(getStart(), getEnd(), target, function, formalParams, body, isRef, returnType, attrGroups);
 	}
 
 	@Override

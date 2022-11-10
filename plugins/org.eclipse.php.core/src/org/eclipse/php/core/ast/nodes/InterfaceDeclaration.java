@@ -40,6 +40,9 @@ public class InterfaceDeclaration extends TypeDeclaration {
 			InterfaceDeclaration.class, "interfaces", Identifier.class, NO_CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildPropertyDescriptor BODY_PROPERTY = new ChildPropertyDescriptor(InterfaceDeclaration.class,
 			"body", Block.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	@Override
 	protected ChildPropertyDescriptor getBodyProperty() {
@@ -49,6 +52,11 @@ public class InterfaceDeclaration extends TypeDeclaration {
 	@Override
 	protected ChildListPropertyDescriptor getInterfacesProperty() {
 		return INTERFACES_PROPERTY;
+	}
+
+	@Override
+	protected ChildListPropertyDescriptor getAttrGroupsProperty() {
+		return ATTR_GROUPS_PROPERTY;
 	}
 
 	@Override
@@ -67,12 +75,13 @@ public class InterfaceDeclaration extends TypeDeclaration {
 		propertyList.add(NAME_PROPERTY);
 		propertyList.add(INTERFACES_PROPERTY);
 		propertyList.add(BODY_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
 	public InterfaceDeclaration(int start, int end, AST ast, Identifier interfaceName, List<Identifier> interfaces,
-			Block body) {
-		super(start, end, ast, interfaceName, interfaces.toArray(new Identifier[interfaces.size()]), body);
+			Block body, List<AttributeGroup> attrGroups) {
+		super(start, end, ast, interfaceName, interfaces.toArray(new Identifier[interfaces.size()]), body, attrGroups);
 	}
 
 	public InterfaceDeclaration(AST ast) {
@@ -90,6 +99,11 @@ public class InterfaceDeclaration extends TypeDeclaration {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		getName().accept(visitor);
 		final List<Identifier> interfaes = interfaces();
 		for (Object node : interfaes) {
@@ -102,6 +116,11 @@ public class InterfaceDeclaration extends TypeDeclaration {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		getName().traverseTopDown(visitor);
 		final List<Identifier> interfaes = interfaces();
 		for (Object node : interfaes) {
@@ -113,6 +132,12 @@ public class InterfaceDeclaration extends TypeDeclaration {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
+
 		getName().traverseBottomUp(visitor);
 		final List<Identifier> interfaes = interfaces();
 		for (Object node : interfaes) {
@@ -142,6 +167,16 @@ public class InterfaceDeclaration extends TypeDeclaration {
 		buffer.append(tab).append(TAB).append("</Interfaces>\n"); //$NON-NLS-1$
 		getBody().toString(buffer, TAB + tab);
 		buffer.append("\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</InterfaceDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -164,7 +199,8 @@ public class InterfaceDeclaration extends TypeDeclaration {
 		final Identifier name = ASTNode.copySubtree(target, getName());
 		final Block body = ASTNode.copySubtree(target, getBody());
 		final List<Identifier> interfaces = ASTNode.copySubtrees(target, interfaces());
-		return new InterfaceDeclaration(getStart(), getEnd(), target, name, interfaces, body);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new InterfaceDeclaration(getStart(), getEnd(), target, name, interfaces, body, attrGroups);
 	}
 
 	@Override

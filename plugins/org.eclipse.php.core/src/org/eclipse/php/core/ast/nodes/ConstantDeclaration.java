@@ -35,6 +35,7 @@ public class ConstantDeclaration extends BodyDeclaration {
 
 	private final ASTNode.NodeList<Identifier> names = new ASTNode.NodeList<>(NAMES_PROPERTY);
 	private final ASTNode.NodeList<Expression> initializers = new ASTNode.NodeList<>(INITIALIZERS_PROPERTY);
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -46,6 +47,9 @@ public class ConstantDeclaration extends BodyDeclaration {
 			CYCLE_RISK);
 	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
 			ConstantDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -58,15 +62,16 @@ public class ConstantDeclaration extends BodyDeclaration {
 		properyList.add(NAMES_PROPERTY);
 		properyList.add(INITIALIZERS_PROPERTY);
 		properyList.add(MODIFIER_PROPERTY);
+		properyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(properyList);
 	}
 
-	public ConstantDeclaration(int start, int end, AST ast, List<Identifier> names, List<Expression> initializers) {
-		this(start, end, ast, 0, names, initializers);
+	public ConstantDeclaration(int start, int end, AST ast, List<Identifier> names, List<Expression> initializers, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, 0, names, initializers, attrGroups);
 	}
 
 	public ConstantDeclaration(int start, int end, AST ast, int modifier, List<Identifier> names,
-			List<Expression> initializers) {
+			List<Expression> initializers, List<AttributeGroup> attrGroups) {
 		super(start, end, ast, modifier);
 
 		if (names == null || initializers == null || names.size() != initializers.size()) {
@@ -79,13 +84,16 @@ public class ConstantDeclaration extends BodyDeclaration {
 			this.names.add(iteratorNames.next());
 			this.initializers.add(iteratorInitializers.next());
 		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
-	public ConstantDeclaration(int start, int end, AST ast, List<ASTNode[]> variablesAndDefaults) {
-		this(start, end, ast, 0, variablesAndDefaults);
+	public ConstantDeclaration(int start, int end, AST ast, List<ASTNode[]> variablesAndDefaults, List<AttributeGroup> attrGroups) {
+		this(start, end, ast, 0, variablesAndDefaults, attrGroups);
 	}
 
-	public ConstantDeclaration(int start, int end, AST ast, int modifier, List<ASTNode[]> variablesAndDefaults) {
+	public ConstantDeclaration(int start, int end, AST ast, int modifier, List<ASTNode[]> variablesAndDefaults, List<AttributeGroup> attrGroups) {
 		super(start, end, ast, modifier);
 		if (variablesAndDefaults == null || variablesAndDefaults.size() == 0) {
 			throw new IllegalArgumentException();
@@ -98,10 +106,17 @@ public class ConstantDeclaration extends BodyDeclaration {
 			this.names.add((Identifier) element[0]);
 			this.initializers.add((Expression) element[1]);
 		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
+		}
 	}
 
 	public ConstantDeclaration(AST ast) {
 		super(ast);
+	}
+
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
 	}
 
 	@Override
@@ -115,6 +130,11 @@ public class ConstantDeclaration extends BodyDeclaration {
 
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		Iterator<Identifier> iterator1 = names.iterator();
 		Iterator<Expression> iterator2 = initializers.iterator();
 		while (iterator1.hasNext()) {
@@ -126,6 +146,12 @@ public class ConstantDeclaration extends BodyDeclaration {
 	@Override
 	public void traverseTopDown(Visitor visitor) {
 		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
+
 		Iterator<Identifier> iterator1 = names.iterator();
 		Iterator<Expression> iterator2 = initializers.iterator();
 		while (iterator1.hasNext()) {
@@ -136,6 +162,12 @@ public class ConstantDeclaration extends BodyDeclaration {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
+
 		Iterator<Identifier> iterator1 = names.iterator();
 		Iterator<Expression> iterator2 = initializers.iterator();
 		while (iterator1.hasNext()) {
@@ -166,6 +198,16 @@ public class ConstantDeclaration extends BodyDeclaration {
 			}
 			buffer.append(tab).append(TAB).append("</InitialValue>\n"); //$NON-NLS-1$
 		}
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
+
 		buffer.append(tab).append("</ConstantDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -196,6 +238,11 @@ public class ConstantDeclaration extends BodyDeclaration {
 		if (property == INITIALIZERS_PROPERTY) {
 			return initializers();
 		}
+
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
+		}
+
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -213,7 +260,8 @@ public class ConstantDeclaration extends BodyDeclaration {
 	ASTNode clone0(AST target) {
 		final List<Identifier> names = ASTNode.copySubtrees(target, this.names());
 		final List<Expression> initializers = ASTNode.copySubtrees(target, this.initializers());
-		return new ConstantDeclaration(this.getStart(), this.getEnd(), target, this.getModifier(), names, initializers);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new ConstantDeclaration(this.getStart(), this.getEnd(), target, this.getModifier(), names, initializers, attrGroups);
 
 	}
 

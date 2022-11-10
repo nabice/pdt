@@ -26,6 +26,7 @@ public class AnonymousClassDeclaration extends Expression {
 	private Expression superClass;
 	protected ASTNode.NodeList<Identifier> interfaces = new ASTNode.NodeList<>(INTERFACES_PROPERTY);
 	private Block body;
+	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
@@ -40,6 +41,10 @@ public class AnonymousClassDeclaration extends Expression {
 			AnonymousClassDeclaration.class, "body", Block.class, MANDATORY, //$NON-NLS-1$
 			CYCLE_RISK);
 
+	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
+			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			NO_CYCLE_RISK);
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}), or null if uninitialized.
@@ -51,6 +56,7 @@ public class AnonymousClassDeclaration extends Expression {
 		propertyList.add(SUPER_CLASS_PROPERTY);
 		propertyList.add(INTERFACES_PROPERTY);
 		propertyList.add(BODY_PROPERTY);
+		propertyList.add(ATTR_GROUPS_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
@@ -59,7 +65,7 @@ public class AnonymousClassDeclaration extends Expression {
 	}
 
 	public AnonymousClassDeclaration(int start, int end, AST ast, Expression superClass, List<Identifier> interfaces,
-			Block body) {
+			Block body, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		setSuperClass(superClass);
@@ -68,6 +74,9 @@ public class AnonymousClassDeclaration extends Expression {
 			while (iterator.hasNext()) {
 				this.interfaces.add(iterator.next());
 			}
+		}
+		if (attrGroups != null) {
+			this.attrGroups.addAll(attrGroups);
 		}
 		setBody(body);
 	}
@@ -84,8 +93,17 @@ public class AnonymousClassDeclaration extends Expression {
 		return interfaces;
 	}
 
+	public List<AttributeGroup> getAttrGroups() {
+		return attrGroups;
+	}
+
 	@Override
 	public void childrenAccept(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.accept(visitor);
+			}
+		}
 		if (superClass != null) {
 			superClass.accept(visitor);
 		}
@@ -99,6 +117,12 @@ public class AnonymousClassDeclaration extends Expression {
 
 	@Override
 	public void traverseTopDown(Visitor visitor) {
+		accept(visitor);
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseTopDown(visitor);
+			}
+		}
 		if (superClass != null) {
 			superClass.traverseTopDown(visitor);
 		}
@@ -112,16 +136,21 @@ public class AnonymousClassDeclaration extends Expression {
 
 	@Override
 	public void traverseBottomUp(Visitor visitor) {
+		if (attrGroups != null) {
+			for (AttributeGroup attrGroup : attrGroups) {
+				attrGroup.traverseBottomUp(visitor);
+			}
+		}
 		if (superClass != null) {
-			superClass.traverseTopDown(visitor);
+			superClass.traverseBottomUp(visitor);
 		}
 		if (interfaces != null) {
 			for (Identifier identifier : interfaces) {
-				identifier.traverseTopDown(visitor);
+				identifier.traverseBottomUp(visitor);
 			}
 		}
-		body.traverseTopDown(visitor);
-
+		body.traverseBottomUp(visitor);
+		accept(visitor);
 	}
 
 	@Override
@@ -153,14 +182,23 @@ public class AnonymousClassDeclaration extends Expression {
 				buffer.append("\n"); //$NON-NLS-1$
 			}
 		}
-		buffer.append(TAB).append(tab).append("<Interfaces>\n"); //$NON-NLS-1$
+		buffer.append(TAB).append(tab).append("</Interfaces>\n"); //$NON-NLS-1$
+
+		buffer.append(TAB).append(tab).append("<AttributeGroups>\n"); //$NON-NLS-1$
+		if (attrGroups != null) {
+			for (AttributeGroup attributeGroup : attrGroups) {
+				attributeGroup.toString(buffer, TAB + TAB + tab);
+				buffer.append("\n"); //$NON-NLS-1$
+			}
+		}
+		buffer.append(TAB).append(tab).append("</AttributeGroups>\n"); //$NON-NLS-1$
 
 		buffer.append(TAB).append(tab).append("<Body>\n"); //$NON-NLS-1$
 		if (body != null) {
 			body.toString(buffer, TAB + TAB + tab);
 			buffer.append("\n"); //$NON-NLS-1$
 		}
-		buffer.append(TAB).append(tab).append("<Body>\n"); //$NON-NLS-1$
+		buffer.append(TAB).append(tab).append("</Body>\n"); //$NON-NLS-1$
 		buffer.append(tab).append("</AnonymousClassDeclaration>"); //$NON-NLS-1$
 	}
 
@@ -191,7 +229,8 @@ public class AnonymousClassDeclaration extends Expression {
 		final Expression superClass = ASTNode.copySubtree(target, getSuperClass());
 		final List<Identifier> interfaces = ASTNode.copySubtrees(target, getInterfaces());
 		final Block body = ASTNode.copySubtree(target, getBody());
-		return new AnonymousClassDeclaration(getStart(), getEnd(), target, superClass, interfaces, body);
+		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
+		return new AnonymousClassDeclaration(getStart(), getEnd(), target, superClass, interfaces, body, attrGroups);
 	}
 
 	@Override
@@ -220,6 +259,9 @@ public class AnonymousClassDeclaration extends Expression {
 	final List<? extends ASTNode> internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == INTERFACES_PROPERTY) {
 			return getInterfaces();
+		}
+		if (property == ATTR_GROUPS_PROPERTY) {
+			return getAttrGroups();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
