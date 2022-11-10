@@ -42,7 +42,7 @@ public class AttributeGroup extends ASTNode {
 	 * The "attrs" structural property of this node type.
 	 */
 	public static final ChildListPropertyDescriptor ATTRS_PROPERTY = new ChildListPropertyDescriptor(AttributeGroup.class,
-																									 "attrs", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+																									 "attrs", Attribute.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
