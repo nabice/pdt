@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.php.core.PHPVersion;
 import org.eclipse.php.core.ast.match.ASTMatcher;
 import org.eclipse.php.core.ast.visitor.Visitor;
+import org.eclipse.php.core.compiler.PHPFlags;
 
 /**
  * Represents a function formal parameter
@@ -35,6 +36,8 @@ public class FormalParameter extends ASTNode {
 	private Expression parameterType;
 	private Expression parameterName;
 	private Expression defaultValue;
+	private int modifier;
+
 	private ASTNode.NodeList<AttributeGroup> attrGroups = new ASTNode.NodeList<>(ATTR_GROUPS_PROPERTY);
 
 	/**
@@ -59,6 +62,8 @@ public class FormalParameter extends ASTNode {
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
 			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
+	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
+			MethodDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -73,6 +78,7 @@ public class FormalParameter extends ASTNode {
 		properyList.add(DEFAULT_VALUE_PROPERTY);
 		properyList.add(IS_VARIADIC_PROPERTY);
 		properyList.add(ATTR_GROUPS_PROPERTY);
+		properyList.add(MODIFIER_PROPERTY);
 		PROPERTY_DESCRIPTORS_PHP5 = Collections.unmodifiableList(properyList);
 	}
 
@@ -86,7 +92,7 @@ public class FormalParameter extends ASTNode {
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
-			Expression defaultValue, boolean isMandatory, boolean isVariadic, List<AttributeGroup> attrGroups) {
+			Expression defaultValue, boolean isMandatory, boolean isVariadic, List<AttributeGroup> attrGroups, int modifier) {
 		super(start, end, ast);
 
 		if (parameterName == null) {
@@ -104,34 +110,35 @@ public class FormalParameter extends ASTNode {
 		if (attrGroups != null) {
 			this.attrGroups.addAll(attrGroups);
 		}
+		setModifier(modifier);
 	}
 
 	private FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
-			Expression defaultValue, boolean isMandatory, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false, attrGroups);
+			Expression defaultValue, boolean isMandatory, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false, attrGroups, modifier);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
-			Expression defaultValue, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups);
+			Expression defaultValue, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups, modifier);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName,
-			Expression defaultValue, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups);
+			Expression defaultValue, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups, modifier);
 	}
 
-	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, null, false, attrGroups);
+	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, null, false, attrGroups, modifier);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
-			boolean isMandatory, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, null, isMandatory, attrGroups);
+			boolean isMandatory, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, null, isMandatory, attrGroups, modifier);
 	}
 
-	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName, List<AttributeGroup> attrGroups) {
-		this(start, end, ast, type, parameterName, null, false, attrGroups);
+	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName, List<AttributeGroup> attrGroups, int modifier) {
+		this(start, end, ast, type, parameterName, null, false, attrGroups, modifier);
 	}
 
 	public List<AttributeGroup> getAttrGroups() {
@@ -280,14 +287,6 @@ public class FormalParameter extends ASTNode {
 		return isMandatory;
 	}
 
-	/**
-	 * Sets the type of this cast expression.
-	 * 
-	 * @param castingType
-	 *            the cast type
-	 * @exception IllegalArgumentException
-	 *                if the argument is incorrect
-	 */
 	public void setIsMandatory(boolean isMandatory) {
 		preValueChange(IS_MANDATORY_PROPERTY);
 		this.isMandatory = isMandatory;
@@ -430,6 +429,20 @@ public class FormalParameter extends ASTNode {
 		return super.internalGetChildListProperty(property);
 	}
 
+	@Override
+	int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIER_PROPERTY) {
+			if (get) {
+				return getModifier();
+			} else {
+				setModifier(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+
 	/**
 	 * @return Identifier name of the formal parameter name
 	 */
@@ -466,7 +479,7 @@ public class FormalParameter extends ASTNode {
 		final boolean isVariadic = this.isVariadic();
 		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		final FormalParameter result = new FormalParameter(this.getStart(), this.getEnd(), target, type, name, value,
-				isMandatory, isVariadic, attrGroups);
+				isMandatory, isVariadic, attrGroups, this.getModifier());
 		return result;
 	}
 
@@ -489,4 +502,19 @@ public class FormalParameter extends ASTNode {
 	public boolean hasDefaultValue() {
 		return defaultValue != null && defaultValue.getLength() > 0;
 	}
+
+	public int getModifier() {
+		return modifier;
+	}
+
+	public String getModifierString() {
+		return PHPFlags.toString(modifier);
+	}
+
+	public void setModifier(int modifier) {
+		preValueChange(MODIFIER_PROPERTY);
+		this.modifier = modifier;
+		postValueChange(MODIFIER_PROPERTY);
+	}
+
 }

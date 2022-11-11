@@ -371,6 +371,9 @@ non terminal FinallyClause non_empty_finally_clause;
 
 non terminal YieldExpression yield_expr;
 
+non terminal Integer property_modifier;
+non terminal List optional_property_modifiers;
+non terminal Integer param_modifiers;
 
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
 precedence left T_COMMA;
@@ -1678,49 +1681,49 @@ parameter:parameter
 ;
 
 parameter ::=
-optional_attributes:attrs optional_type:type T_VARIABLE:var
+optional_attributes:attrs param_modifiers:modifier optional_type:type T_VARIABLE:var
 {:
 	int s = type == null ? varleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, v, attrs);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, v, attrs, modifier);
 :}
 
-| optional_attributes:attrs optional_type:type T_ELLIPSIS:e T_VARIABLE:var
+| optional_attributes:attrs param_modifiers:modifier optional_type:type T_ELLIPSIS:e T_VARIABLE:var
 {:
 	int s = type == null ? eleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, v, null, false, true, attrs);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, v, null, false, true, attrs, modifier);
 :}
 
-| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_VARIABLE:var
+| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, attrs);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, attrs, modifier);
 :}
 
-| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_ELLIPSIS T_VARIABLE:var
+| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_ELLIPSIS T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, null, false, true, attrs);
+	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, null, false, true, attrs, modifier);
 :}
 
-| optional_attributes:attrs optional_type:type T_VARIABLE:var T_EQUAL expr:expr
+| optional_attributes:attrs param_modifiers:modifier optional_type:type T_VARIABLE:var T_EQUAL expr:expr
 {:
 	int s = type == null ? varleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
-	RESULT = new FormalParameter(s, exprright, parser.ast, type, v, expr, attrs);
+	RESULT = new FormalParameter(s, exprright, parser.ast, type, v, expr, attrs, modifier);
 :}
 
-| optional_attributes:attrs optional_type:type T_REFERENCE:ref T_VARIABLE:var T_EQUAL expr:expr
+| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_VARIABLE:var T_EQUAL expr:expr
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
 	Reference ref_var = new Reference (refleft, varright, parser.ast, v);
-	RESULT = new FormalParameter(s, exprright, parser.ast, type, ref_var, expr, attrs);
+	RESULT = new FormalParameter(s, exprright, parser.ast, type, ref_var, expr, attrs, modifier);
 :}
 ;
 
@@ -3604,5 +3607,48 @@ T_YIELD:token
 | T_YIELD_FROM:token expr:expr
 {:
 	RESULT = new YieldExpression(tokenleft, exprright, parser.ast, expr, YieldExpression.OP_FROM);
+:}
+;
+
+property_modifier ::=
+T_PUBLIC
+{:
+	RESULT = PHPAstParser.PUBLIC;
+:}
+
+| T_PROTECTED
+{:
+	RESULT = PHPAstParser.PROTECTED;
+:}
+
+| T_PRIVATE
+{:
+	RESULT = PHPAstParser.PRIVATE;
+:}
+;
+
+optional_property_modifiers ::=
+/* empty */
+{:
+	List list = new LinkedList();
+    RESULT = list;
+:}
+
+| optional_property_modifiers:list property_modifier:modifier
+{:
+	list.add(modifier);
+	RESULT = list;
+:}
+;
+
+param_modifiers ::=
+optional_property_modifiers:list
+{:
+	int result = 0;
+	for (Iterator it = list.iterator(); it.hasNext();) {
+		Integer modifier = (Integer) it.next();
+		result |= modifier.intValue();
+	}
+	RESULT = Integer.valueOf(result);
 :}
 ;
