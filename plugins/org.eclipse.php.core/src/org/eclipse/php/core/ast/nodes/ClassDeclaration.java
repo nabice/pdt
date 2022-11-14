@@ -112,6 +112,12 @@ public class ClassDeclaration extends TypeDeclaration {
 	}
 
 	public ClassDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
+							List<Identifier> interfaces, Block body) {
+		this(start, end, ast, modifier, className, superClass,
+			 interfaces, body, null);
+	}
+
+	public ClassDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
 			List<Identifier> interfaces, Block body, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, modifier, className, superClass,
 				interfaces == null ? null : interfaces.toArray(new Identifier[interfaces.size()]), body, attrGroups);

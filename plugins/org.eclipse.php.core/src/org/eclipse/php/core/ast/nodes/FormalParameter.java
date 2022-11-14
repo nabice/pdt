@@ -92,6 +92,11 @@ public class FormalParameter extends ASTNode {
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
+							Expression defaultValue, boolean isMandatory, boolean isVariadic) {
+		this(start, end, ast, type, parameterName, defaultValue, isMandatory, isVariadic, null, 0);
+	}
+
+	public FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
 			Expression defaultValue, boolean isMandatory, boolean isVariadic, List<AttributeGroup> attrGroups, int modifier) {
 		super(start, end, ast);
 
@@ -118,9 +123,19 @@ public class FormalParameter extends ASTNode {
 		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false, attrGroups, modifier);
 	}
 
+	public FormalParameter(int start, int end, AST ast, Expression type, final Expression parameterName,
+							Expression defaultValue, boolean isMandatory) {
+		this(start, end, ast, type, parameterName, defaultValue, isMandatory, false, null, 0);
+	}
+
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
 			Expression defaultValue, List<AttributeGroup> attrGroups, int modifier) {
 		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups, modifier);
+	}
+
+	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
+						   Expression defaultValue) {
+		this(start, end, ast, type, parameterName, defaultValue, false, null, 0);
 	}
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName,
@@ -128,17 +143,36 @@ public class FormalParameter extends ASTNode {
 		this(start, end, ast, type, parameterName, defaultValue, false, attrGroups, modifier);
 	}
 
+	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName,
+						   Expression defaultValue) {
+		this(start, end, ast, type, parameterName, defaultValue, false, null, 0);
+	}
+
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName, List<AttributeGroup> attrGroups, int modifier) {
 		this(start, end, ast, type, parameterName, null, false, attrGroups, modifier);
 	}
+
+	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName) {
+		this(start, end, ast, type, parameterName, null, false, null, 0);
+	}
+
 
 	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
 			boolean isMandatory, List<AttributeGroup> attrGroups, int modifier) {
 		this(start, end, ast, type, parameterName, null, isMandatory, attrGroups, modifier);
 	}
 
+	public FormalParameter(int start, int end, AST ast, Expression type, final Variable parameterName,
+						   boolean isMandatory) {
+		this(start, end, ast, type, parameterName, null, isMandatory, null, 0);
+	}
+
 	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName, List<AttributeGroup> attrGroups, int modifier) {
 		this(start, end, ast, type, parameterName, null, false, attrGroups, modifier);
+	}
+
+	public FormalParameter(int start, int end, AST ast, Expression type, final Reference parameterName) {
+		this(start, end, ast, type, parameterName, null, false, null, 0);
 	}
 
 	public List<AttributeGroup> getAttrGroups() {

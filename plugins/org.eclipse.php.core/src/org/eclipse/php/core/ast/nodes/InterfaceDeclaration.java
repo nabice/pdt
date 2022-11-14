@@ -84,6 +84,11 @@ public class InterfaceDeclaration extends TypeDeclaration {
 		super(start, end, ast, interfaceName, interfaces.toArray(new Identifier[interfaces.size()]), body, attrGroups);
 	}
 
+	public InterfaceDeclaration(int start, int end, AST ast, Identifier interfaceName, List<Identifier> interfaces,
+								Block body) {
+		this(start, end, ast, interfaceName, interfaces, body, null);
+	}
+
 	public InterfaceDeclaration(AST ast) {
 		super(ast);
 	}

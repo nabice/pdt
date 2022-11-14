@@ -25,6 +25,11 @@ public class TraitDeclaration extends ClassDeclaration {
 		super(start, end, ast, modifier, className, superClass, interfaces, body, attrGroups);
 	}
 
+	public TraitDeclaration(int start, int end, AST ast, int modifier, Identifier className, Expression superClass,
+							List<Identifier> interfaces, Block body) {
+		super(start, end, ast, modifier, className, superClass, interfaces, body, null);
+	}
+
 	public TraitDeclaration(AST ast) {
 		super(ast);
 	}

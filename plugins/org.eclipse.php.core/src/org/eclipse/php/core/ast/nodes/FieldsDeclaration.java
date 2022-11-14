@@ -71,6 +71,11 @@ public class FieldsDeclaration extends BodyDeclaration {
 	}
 
 	public FieldsDeclaration(int start, int end, AST ast, int modifier, Expression type,
+							 List<SingleFieldDeclaration> variablesAndDefaults) {
+		this(start, end, ast, modifier, type, variablesAndDefaults, null);
+	}
+
+	public FieldsDeclaration(int start, int end, AST ast, int modifier, Expression type,
 			List<SingleFieldDeclaration> variablesAndDefaults, List<AttributeGroup> attrGroups) {
 		super(start, end, ast, modifier);
 
@@ -103,6 +108,11 @@ public class FieldsDeclaration extends BodyDeclaration {
 	public FieldsDeclaration(int start, int end, AST ast, int modifier,
 			List<SingleFieldDeclaration> variablesAndDefaults, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, modifier, null, variablesAndDefaults, attrGroups);
+	}
+
+	public FieldsDeclaration(int start, int end, AST ast, int modifier,
+							 List<SingleFieldDeclaration> variablesAndDefaults) {
+		this(start, end, ast, modifier, null, variablesAndDefaults, null);
 	}
 
 	public FieldsDeclaration(AST ast) {

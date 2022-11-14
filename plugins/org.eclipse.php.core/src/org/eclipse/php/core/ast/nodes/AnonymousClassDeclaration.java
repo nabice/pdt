@@ -81,6 +81,11 @@ public class AnonymousClassDeclaration extends Expression {
 		setBody(body);
 	}
 
+	public AnonymousClassDeclaration(int start, int end, AST ast, Expression superClass, List<Identifier> interfaces,
+									 Block body) {
+		this(start, end, ast, superClass, interfaces, body, null);
+	}
+
 	public Block getBody() {
 		return body;
 	}

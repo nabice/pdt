@@ -93,6 +93,14 @@ public class ConstantDeclaration extends BodyDeclaration {
 		this(start, end, ast, 0, variablesAndDefaults, attrGroups);
 	}
 
+	public ConstantDeclaration(int start, int end, AST ast, List<ASTNode[]> variablesAndDefaults) {
+		this(start, end, ast, 0, variablesAndDefaults, null);
+	}
+
+	public ConstantDeclaration(int start, int end, AST ast, int modifier, List<ASTNode[]> variablesAndDefaults) {
+		this(start, end, ast, modifier, variablesAndDefaults, null);
+	}
+
 	public ConstantDeclaration(int start, int end, AST ast, int modifier, List<ASTNode[]> variablesAndDefaults, List<AttributeGroup> attrGroups) {
 		super(start, end, ast, modifier);
 		if (variablesAndDefaults == null || variablesAndDefaults.size() == 0) {

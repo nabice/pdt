@@ -91,8 +91,18 @@ public class LambdaFunctionDeclaration extends Expression {
 	}
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+									 List<Expression> lexicalVars, Block body, final boolean isReference) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, false, (List<AttributeGroup>)null);
+	}
+
+	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null, attrGroups);
+	}
+
+	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+									 List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null, null);
 	}
 
 	/**
@@ -111,6 +121,16 @@ public class LambdaFunctionDeclaration extends Expression {
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
 			int staticStart, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, null, attrGroups);
+	}
+
+	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+									 List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic, Expression returnType) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, returnType, null);
+	}
+
+	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+									 List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic, int staticStart, Expression returnType) {
+		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, staticStart, returnType, null);
 	}
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,

@@ -93,6 +93,16 @@ public class FunctionDeclaration extends Statement {
 	}
 
 	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
+							   List<FormalParameter> formalParameters, Block body, final boolean isReference) {
+		this(start, end, ast, functionName, formalParameters, body, isReference, null, null);
+	}
+
+	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
+							   List<FormalParameter> formalParameters, Block body, final boolean isReference, Expression returnType) {
+		this(start, end, ast, functionName, formalParameters, body, isReference, returnType, null);
+	}
+
+	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
 			List<FormalParameter> formalParameters, Block body, final boolean isReference, Expression returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 

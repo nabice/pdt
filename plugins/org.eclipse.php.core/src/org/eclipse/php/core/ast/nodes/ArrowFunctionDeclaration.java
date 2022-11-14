@@ -83,6 +83,12 @@ public class ArrowFunctionDeclaration extends Expression {
 	}
 
 	public ArrowFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
+									Expression body, final boolean isReference, final boolean isStatic, Expression returnType) {
+		this(start, end, ast, formalParameters, body, isReference, isStatic, returnType, null);
+
+	}
+
+	public ArrowFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			Expression body, final boolean isReference, final boolean isStatic, Expression returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
