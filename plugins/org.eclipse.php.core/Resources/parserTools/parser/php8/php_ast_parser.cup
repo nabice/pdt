@@ -305,6 +305,7 @@ non terminal List interface_extends_list;
 non terminal Expression class_name;
 non terminal NamespaceName name;
 non terminal Identifier type;
+non terminal Identifier type_without_static;
 non terminal Expression type_expr;
 non terminal Expression return_type;
 non terminal NamespaceName fully_qualified_class_name;
@@ -1820,7 +1821,7 @@ type:t1 T_OR type:t2
 :}
 ;
 
-type ::=
+type_without_static ::=
 T_ARRAY:array
 {:
 	RESULT = new Identifier(arrayleft, arrayright, parser.ast, "array");
@@ -1834,6 +1835,18 @@ T_ARRAY:array
 | name:name
 {:
 	RESULT = name;
+:}
+;
+
+type ::=
+type_without_static:type
+{:
+    RESULT = type;
+:}
+
+| T_STATIC:s
+{:
+	RESULT = new Identifier(sleft, sright, parser.ast, "static");
 :}
 ;
 
