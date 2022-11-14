@@ -718,6 +718,15 @@ NOWDOC_CHARS=([^\n\r]|({NEWLINE}{TABS_AND_SPACES})+[^a-zA-Z_\u0080-\uffff\n\r \t
 	return createSymbol(ParserConstants.T_SPACESHIP);
 }
 
+<ST_IN_SCRIPTING>"?->" {
+	pushState(ST_LOOKING_FOR_PROPERTY);
+	return createSymbol(ParserConstants.T_NULLSAFE_OBJECT_OPERATOR);
+}
+
+<ST_LOOKING_FOR_PROPERTY>"?->" {
+	return createSymbol(ParserConstants.T_NULLSAFE_OBJECT_OPERATOR);
+}
+
 <ST_IN_SCRIPTING>"??" {
 	return createSymbol(ParserConstants.T_COALESCE);
 }

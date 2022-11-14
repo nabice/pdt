@@ -220,6 +220,8 @@ terminal T_COALESCE;
 terminal T_COALESCE_EQUAL;
 terminal String T_FN;
 
+//php 8.0
+terminal T_NULLSAFE_OBJECT_OPERATOR;
 /* Non terminals */
 
 non terminal Program thestart;
@@ -3058,6 +3060,13 @@ callable_variable:var
 {:
 	RESULT = new FieldAccess(dispatchleft, propertyright, parser.ast, dispatch, property);
 :}
+
+| dereferencable:dispatch T_NULLSAFE_OBJECT_OPERATOR property_name:property
+{:
+	FieldAccess fa = new FieldAccess(dispatchleft, propertyright, parser.ast, dispatch, property);
+	fa.setNullsafe(true);
+    RESULT = fa;
+:}
 ;
 
 dereferencable ::=
@@ -3134,6 +3143,15 @@ simple_variable:var
 	RESULT = new MethodInvocation(chleft, endright, parser.ast, ch, new FunctionInvocation(memberPropertyleft, endright, parser.ast,
 			new FunctionName(memberPropertyleft, memberPropertyright, parser.ast, memberProperty), paramsList));
 :}
+
+| dereferencable:ch T_NULLSAFE_OBJECT_OPERATOR property_name:memberProperty T_OPEN_PARENTHESE:start function_call_parameter_list:paramsList T_CLOSE_PARENTHESE:end
+{:
+	MethodInvocation mi = new MethodInvocation(chleft, endright, parser.ast, ch, new FunctionInvocation(memberPropertyleft, endright, parser.ast,
+			new FunctionName(memberPropertyleft, memberPropertyright, parser.ast, memberProperty), paramsList));
+	mi.setNullsafe(true);
+    RESULT = mi;
+:}
+
 | function_call:c
 {:
 	RESULT = c;
@@ -3188,6 +3206,13 @@ simple_variable:v
 | new_variable:dispatcher T_OBJECT_OPERATOR property_name:property
 {:
 	RESULT = new FieldAccess(dispatcherleft, propertyright, parser.ast, dispatcher, property);
+:}
+
+| new_variable:dispatcher T_NULLSAFE_OBJECT_OPERATOR property_name:property
+{:
+	FieldAccess fa = new FieldAccess(dispatcherleft, propertyright, parser.ast, dispatcher, property);
+	fa.setNullsafe(true);
+	RESULT = fa;
 :}
 
 | class_name:className T_PAAMAYIM_NEKUDOTAYIM simple_variable:var
@@ -3496,6 +3521,13 @@ T_CURLY_OPEN_WITH_DOLAR:s variable:var T_CURLY_CLOSE:e
 | T_VARIABLE:varName T_OBJECT_OPERATOR string_st:string
 {:
 	RESULT = new FieldAccess(varNameleft, stringright, ast, new Variable(varNameleft, varNameright, parser.ast, varName), new Variable(stringleft, stringright, parser.ast, string));
+:}
+
+| T_VARIABLE:varName T_NULLSAFE_OBJECT_OPERATOR string_st:string
+{:
+	FieldAccess fa = new FieldAccess(varNameleft, stringright, ast, new Variable(varNameleft, varNameright, parser.ast, varName), new Variable(stringleft, stringright, parser.ast, string));
+	fa.setNullsafe(true);
+	RESULT = fa;
 :}
 
 | T_DOLLAR_OPEN_CURLY_BRACES:s expr:expr T_CURLY_CLOSE:e

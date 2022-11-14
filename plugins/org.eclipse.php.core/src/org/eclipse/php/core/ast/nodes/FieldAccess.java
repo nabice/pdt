@@ -33,6 +33,7 @@ import org.eclipse.php.core.ast.visitor.Visitor;
 public class FieldAccess extends Dispatch {
 
 	private Variable field;
+	private boolean nullsafe = false;
 
 	/**
 	 * The structural property of this node type.
@@ -41,6 +42,8 @@ public class FieldAccess extends Dispatch {
 			"dispatcher", VariableBase.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildPropertyDescriptor FIELD_PROPERTY = new ChildPropertyDescriptor(FieldAccess.class, "field", //$NON-NLS-1$
 			Variable.class, MANDATORY, CYCLE_RISK);
+	public static final SimplePropertyDescriptor NULLSAFE_PROPERTY = new SimplePropertyDescriptor(FieldAccess.class,
+																							  "nullsafe", Boolean.class, OPTIONAL); //$NON-NLS-1$
 
 	@Override
 	ChildPropertyDescriptor getDispatcherProperty() {
@@ -57,6 +60,7 @@ public class FieldAccess extends Dispatch {
 		List<StructuralPropertyDescriptor> propertyList = new ArrayList<>(2);
 		propertyList.add(FIELD_PROPERTY);
 		propertyList.add(DISPATCHER_PROPERTY);
+		propertyList.add(NULLSAFE_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
@@ -159,6 +163,30 @@ public class FieldAccess extends Dispatch {
 		preReplaceChild(oldChild, variable, FIELD_PROPERTY);
 		this.field = variable;
 		postReplaceChild(oldChild, variable, FIELD_PROPERTY);
+	}
+
+	public void setNullsafe(boolean nullsafe) {
+		preValueChange(NULLSAFE_PROPERTY);
+		this.nullsafe = nullsafe;
+		postValueChange(NULLSAFE_PROPERTY);
+	}
+
+	public boolean isNullsafe() {
+		return nullsafe;
+	}
+
+	@Override
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == NULLSAFE_PROPERTY) {
+			if (get) {
+				return isNullsafe();
+			} else {
+				setNullsafe(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
 	@Override

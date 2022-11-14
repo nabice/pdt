@@ -33,6 +33,7 @@ import org.eclipse.php.core.ast.visitor.Visitor;
 public class MethodInvocation extends Dispatch {
 
 	private FunctionInvocation method;
+	private boolean nullsafe = false;
 
 	/**
 	 * The structural property of this node type.
@@ -41,6 +42,8 @@ public class MethodInvocation extends Dispatch {
 			MethodInvocation.class, "dispatcher", VariableBase.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildPropertyDescriptor METHOD_PROPERTY = new ChildPropertyDescriptor(MethodInvocation.class,
 			"method", FunctionInvocation.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final SimplePropertyDescriptor NULLSAFE_PROPERTY = new SimplePropertyDescriptor(MethodInvocation.class,
+																								  "nullsafe", Boolean.class, OPTIONAL); //$NON-NLS-1$
 
 	@Override
 	ChildPropertyDescriptor getDispatcherProperty() {
@@ -57,6 +60,7 @@ public class MethodInvocation extends Dispatch {
 		List<StructuralPropertyDescriptor> propertyList = new ArrayList<>(2);
 		propertyList.add(METHOD_PROPERTY);
 		propertyList.add(DISPATCHER_PROPERTY);
+		propertyList.add(NULLSAFE_PROPERTY);
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(propertyList);
 	}
 
@@ -157,6 +161,30 @@ public class MethodInvocation extends Dispatch {
 		preReplaceChild(oldChild, method, METHOD_PROPERTY);
 		this.method = method;
 		postReplaceChild(oldChild, method, METHOD_PROPERTY);
+	}
+
+	public void setNullsafe(boolean nullsafe) {
+		preValueChange(NULLSAFE_PROPERTY);
+		this.nullsafe = nullsafe;
+		postValueChange(NULLSAFE_PROPERTY);
+	}
+
+	public boolean isNullsafe() {
+		return nullsafe;
+	}
+
+	@Override
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == NULLSAFE_PROPERTY) {
+			if (get) {
+				return isNullsafe();
+			} else {
+				setNullsafe(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
 	@Override
