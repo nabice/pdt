@@ -22,13 +22,13 @@ import org.eclipse.php.core.ast.visitor.Visitor;
 
 public class ReturnType extends ASTNode {
 
-	private Identifier returnType;
+	private Expression returnType;
 
 	/**
 	 * The structural property of this node type.
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = new ChildPropertyDescriptor(ReturnType.class,
-			"returnType", Identifier.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+			"returnType", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -42,7 +42,7 @@ public class ReturnType extends ASTNode {
 		PROPERTY_DESCRIPTORS = Collections.unmodifiableList(properyList);
 	}
 
-	public ReturnType(Identifier returnType) {
+	public ReturnType(Expression returnType) {
 		super(returnType.getStart(), returnType.getEnd(), returnType.ast);
 		setName(returnType);
 	}
@@ -92,11 +92,11 @@ public class ReturnType extends ASTNode {
 		return matcher.match(this, other);
 	}
 
-	public Identifier getName() {
+	public Expression getName() {
 		return returnType;
 	}
 
-	public void setName(Identifier returnType) {
+	public void setName(Expression returnType) {
 		this.returnType = returnType;
 		this.returnType.setParent(this, RETURN_TYPE_PROPERTY);
 	}
@@ -113,7 +113,7 @@ public class ReturnType extends ASTNode {
 
 	@Override
 	ASTNode clone0(AST target) {
-		final Identifier name = ASTNode.copySubtree(target, this.getName());
+		final Expression name = ASTNode.copySubtree(target, this.getName());
 		final ReturnType result = new ReturnType(name);
 		return result;
 	}

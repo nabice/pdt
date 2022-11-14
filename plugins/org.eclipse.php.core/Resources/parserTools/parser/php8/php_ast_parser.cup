@@ -303,8 +303,8 @@ non terminal List interface_extends_list;
 non terminal Expression class_name;
 non terminal NamespaceName name;
 non terminal Identifier type;
-non terminal Identifier type_expr;
-non terminal Identifier return_type;
+non terminal Expression type_expr;
+non terminal Expression return_type;
 non terminal NamespaceName fully_qualified_class_name;
 non terminal List property_list;
 non terminal List class_const_list;
@@ -374,6 +374,7 @@ non terminal YieldExpression yield_expr;
 non terminal Integer property_modifier;
 non terminal List optional_property_modifiers;
 non terminal Integer param_modifiers;
+non terminal List union_type;
 
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
 precedence left T_COMMA;
@@ -1793,6 +1794,27 @@ type:type
 {:
 	type.setNullable(true);
 	RESULT = type;
+:}
+
+| union_type:unionType
+{:
+    RESULT = new UnionType(unionTypeleft, unionTyperight, parser.ast, unionType);
+:}
+;
+
+union_type ::=
+type:t1 T_OR type:t2
+{:
+	List list = new LinkedList();
+	list.add(t1);
+	list.add(t2);
+	RESULT = list;
+:}
+
+| union_type:list T_OR type:type
+{:
+    list.add(type);
+    RESULT = list;
 :}
 ;
 

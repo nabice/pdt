@@ -186,8 +186,13 @@ public class ClassNameOccurrencesFinder extends AbstractOccurrencesFinder {
 
 	@Override
 	public boolean visit(FunctionDeclaration functionDeclaration) {
-		if (functionDeclaration.getReturnType() != null) {
-			dealIdentifier(functionDeclaration.getReturnType());
+		Expression returnType = functionDeclaration.getReturnType();
+		if (returnType instanceof Identifier) {
+			dealIdentifier((Identifier) returnType);
+		} else if (returnType instanceof UnionType) {
+			for(Identifier identifier:((UnionType) returnType).types()) {
+				dealIdentifier(identifier);
+			}
 		}
 		return true;
 	}

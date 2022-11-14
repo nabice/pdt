@@ -126,7 +126,8 @@ public abstract class ASTNode implements Visitable {
 	public static final int MATCH_ARM = 83;
 	public static final int NAMED_ARG = 84;
 	public static final int ATTRIBUTE = 85;
-	public static final int ATTRIBUTEGROUP = 85;
+	public static final int ATTRIBUTEGROUP = 86;
+	public static final int UNION_TYPE = 87;
 
 	/**
 	 * Internal convenience constant indicating that there is definite risk of

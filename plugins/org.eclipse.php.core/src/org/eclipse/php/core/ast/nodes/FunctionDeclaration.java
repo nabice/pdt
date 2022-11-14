@@ -93,7 +93,7 @@ public class FunctionDeclaration extends Statement {
 	}
 
 	public FunctionDeclaration(int start, int end, AST ast, Identifier functionName,
-			List<FormalParameter> formalParameters, Block body, final boolean isReference, Identifier returnType, List<AttributeGroup> attrGroups) {
+			List<FormalParameter> formalParameters, Block body, final boolean isReference, Expression returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (functionName == null || formalParameters == null) {
@@ -345,9 +345,9 @@ public class FunctionDeclaration extends Statement {
 	/**
 	 * Gets function return type (PHP7)
 	 * 
-	 * @return return type Identifier, can be null
+	 * @return return type Expression, can be null
 	 */
-	public Identifier getReturnType() {
+	public Expression getReturnType() {
 		if (returnType != null) {
 			return returnType.getName();
 		}
@@ -358,9 +358,9 @@ public class FunctionDeclaration extends Statement {
 	 * Sets if function declaration has defined return type (PHP7)
 	 * 
 	 * @param returnType
-	 *            return type Identifier, can be null
+	 *            return type Expression, can be null
 	 */
-	public void setReturnType(Identifier returnType) {
+	public void setReturnType(Expression returnType) {
 		ASTNode oldChild = this.returnType;
 		ReturnType newChild = null;
 		if (returnType != null) {
@@ -410,7 +410,7 @@ public class FunctionDeclaration extends Statement {
 			if (get) {
 				return getReturnType();
 			} else {
-				setReturnType((Identifier) child);
+				setReturnType((Expression) child);
 				return null;
 			}
 		}
@@ -447,7 +447,7 @@ public class FunctionDeclaration extends Statement {
 		final Identifier function = ASTNode.copySubtree(target, getFunctionName());
 		final List<FormalParameter> formalParams = ASTNode.copySubtrees(target, formalParameters());
 		final boolean isRef = isReference();
-		final Identifier returnType = ASTNode.copySubtree(target, getReturnType());
+		final Expression returnType = ASTNode.copySubtree(target, getReturnType());
 		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		return new FunctionDeclaration(getStart(), getEnd(), target, function, formalParams, body, isRef, returnType, attrGroups);
 	}

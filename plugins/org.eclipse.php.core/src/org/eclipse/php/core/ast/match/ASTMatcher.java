@@ -704,6 +704,15 @@ public class ASTMatcher {
 		return safeSubtreeListMatch(node.variables(), o.variables());
 	}
 
+	public boolean match(UnionType node, Object other) {
+		if (!(other instanceof UnionType)) {
+			return false;
+		}
+		UnionType o = (UnionType) other;
+
+		return safeSubtreeListMatch(node.types(), o.types());
+	}
+
 	public boolean match(MethodDeclaration node, Object other) {
 		if (!(other instanceof MethodDeclaration)) {
 			return false;

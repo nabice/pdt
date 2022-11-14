@@ -100,7 +100,7 @@ public class LambdaFunctionDeclaration extends Expression {
 	 */
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
-			int staticStart, Identifier returnType, List<AttributeGroup> attrGroups) {
+			int staticStart, Expression returnType, List<AttributeGroup> attrGroups) {
 		this(start, end, ast, formalParameters, lexicalVars, body, isReference, isStatic, returnType, attrGroups);
 	}
 
@@ -115,7 +115,7 @@ public class LambdaFunctionDeclaration extends Expression {
 
 	public LambdaFunctionDeclaration(int start, int end, AST ast, List<FormalParameter> formalParameters,
 			List<Expression> lexicalVars, Block body, final boolean isReference, final boolean isStatic,
-			Identifier returnType, List<AttributeGroup> attrGroups) {
+			Expression returnType, List<AttributeGroup> attrGroups) {
 		super(start, end, ast);
 
 		if (formalParameters == null) {
@@ -374,9 +374,9 @@ public class LambdaFunctionDeclaration extends Expression {
 	/**
 	 * Gets lambda return type (PHP7)
 	 * 
-	 * @return return type Identifier, can be null
+	 * @return return type Expression, can be null
 	 */
-	public Identifier getReturnType() {
+	public Expression getReturnType() {
 		if (returnType != null) {
 			return returnType.getName();
 		}
@@ -387,9 +387,9 @@ public class LambdaFunctionDeclaration extends Expression {
 	 * Sets if lambda declaration has defined return type (PHP7)
 	 * 
 	 * @param returnType
-	 *            return type Identifier, can be null
+	 *            return type Expression, can be null
 	 */
-	public void setReturnType(Identifier returnType) {
+	public void setReturnType(Expression returnType) {
 		ASTNode oldChild = this.returnType;
 		ReturnType newChild = null;
 		if (returnType != null) {
@@ -438,7 +438,7 @@ public class LambdaFunctionDeclaration extends Expression {
 			if (get) {
 				return getReturnType();
 			} else {
-				setReturnType((Identifier) child);
+				setReturnType((Expression) child);
 				return null;
 			}
 		}
@@ -478,7 +478,7 @@ public class LambdaFunctionDeclaration extends Expression {
 		final List<FormalParameter> formalParams = ASTNode.copySubtrees(target, formalParameters());
 		final List<Expression> lexicalVars = ASTNode.copySubtrees(target, lexicalVariables());
 		final boolean isRef = isReference();
-		final Identifier returnType = ASTNode.copySubtree(target, getReturnType());
+		final Expression returnType = ASTNode.copySubtree(target, getReturnType());
 		final List<AttributeGroup> attrGroups = ASTNode.copySubtrees(target, getAttrGroups());
 		return new LambdaFunctionDeclaration(getStart(), getEnd(), target, formalParams, lexicalVars, body, isRef,
 				isStatic(), returnType, attrGroups);
