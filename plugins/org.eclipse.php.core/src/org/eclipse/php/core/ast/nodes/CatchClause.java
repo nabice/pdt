@@ -123,7 +123,9 @@ public class CatchClause extends Statement {
 		for (Expression className : classNames) {
 			className.accept(visitor);
 		}
-		variable.accept(visitor);
+		if(variable != null) {
+			variable.accept(visitor);
+		}
 		body.accept(visitor);
 	}
 
