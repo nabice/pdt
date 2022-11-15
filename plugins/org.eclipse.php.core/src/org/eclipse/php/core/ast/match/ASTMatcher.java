@@ -912,7 +912,15 @@ public class ASTMatcher {
 			return false;
 		}
 
-		return false;
+		return safeSubtreeMatch(node.getExpression(), ((ThrowStatement) other).getExpression());
+	}
+
+	public boolean match(ThrowExpression node, Object other) {
+		if (!(other instanceof ThrowExpression)) {
+			return false;
+		}
+
+		return safeSubtreeMatch(node.getExpression(), ((ThrowExpression) other).getExpression());
 	}
 
 	public boolean match(TryStatement node, Object other) {

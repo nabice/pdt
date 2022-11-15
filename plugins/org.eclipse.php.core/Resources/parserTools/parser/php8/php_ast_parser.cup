@@ -379,6 +379,7 @@ non terminal List optional_property_modifiers;
 non terminal Integer param_modifiers;
 non terminal List union_type;
 
+precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
 precedence left T_COMMA;
 precedence left T_LOGICAL_OR;
@@ -1101,7 +1102,14 @@ T_CURLY_OPEN:token inner_statement_list:sList T_CURLY_CLOSE:e
 
 | expr:expr T_SEMICOLON:e
 {:
-	RESULT = new ExpressionStatement(exprleft, eright, parser.ast, expr);
+    if (expr instanceof ThrowExpression) {
+        // For backwards-compatibility
+        Expression throwExpr = ((ThrowExpression)expr).getExpression();
+        throwExpr.setParent(null, null);
+        RESULT = new ThrowStatement(exprleft, eright, parser.ast, throwExpr);
+    } else {
+	    RESULT = new ExpressionStatement(exprleft, eright, parser.ast, expr);
+	}
 :}
 
 | T_USE:s use_filename:expr T_SEMICOLON:e
@@ -1152,11 +1160,6 @@ finally_clause:finallyClause
 	TryStatement s = new TryStatement(startleft, finallyClause != null ? finallyClauseright : catchesListright, parser.ast, new Block(tryBlockStartleft, tryBlockEndright, parser.ast, tryList), catchesList, finallyClause);
 
 	RESULT = s;
-:}
-
-| T_THROW:token expr:expr T_SEMICOLON:e
-{:
-	RESULT = new ThrowStatement(tokenleft, eright, parser.ast, expr);
 :}
 
 | T_GOTO:s T_STRING:label T_SEMICOLON:e
@@ -2715,6 +2718,11 @@ T_LIST:s T_OPEN_PARENTHESE assignment_list:varList T_CLOSE_PARENTHESE:close T_EQ
 	RESULT = new FunctionInvocation(sleft, exprright, parser.ast,
 		new FunctionName(sleft, sright, parser.ast,
 			new Identifier(sleft, sright, parser.ast, "print")), expList);
+:}
+
+| T_THROW:token expr:expr
+{:
+	RESULT = new ThrowExpression(tokenleft, exprright, parser.ast, expr);
 :}
 
 | T_FUNCTION:s is_reference:isReference
