@@ -379,6 +379,8 @@ non terminal List optional_property_modifiers;
 non terminal Integer param_modifiers;
 non terminal List union_type;
 
+non terminal String optional_variable;
+
 precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
 precedence left T_COMMA;
@@ -1217,12 +1219,29 @@ catch_clause:catch_statement
 ;
 
 catch_clause ::=
-T_CATCH:catch_word T_OPEN_PARENTHESE catch_name_list:catch_name_list T_VARIABLE:var T_CLOSE_PARENTHESE
+T_CATCH:catch_word T_OPEN_PARENTHESE catch_name_list:catch_name_list optional_variable:var T_CLOSE_PARENTHESE
  T_CURLY_OPEN:catchBlockStart inner_statement_list:catchList T_CURLY_CLOSE:catchBlockEnd
 {:
+    Variable catchVar;
+    if(var == null) {
+        catchVar = null;
+    } else {
+        catchVar = new Variable(varleft, varright, parser.ast, var);
+    }
 	RESULT = new CatchClause(catch_wordleft, catchBlockEndright, parser.ast, catch_name_list,
-		new Variable(varleft, varright, parser.ast, var),
+		catchVar,
 		new Block(catchBlockStartleft, catchBlockEndright, parser.ast, catchList));
+:}
+;
+
+optional_variable ::=
+/* empty */
+{:
+    RESULT = null;
+:}
+| T_VARIABLE:var
+{:
+    RESULT = var;
 :}
 ;
 
