@@ -2893,6 +2893,10 @@ class_name:className
 {:
 	RESULT = new ClassName(classNameleft, classNameright, parser.ast, className);
 :}
+| T_OPEN_PARENTHESE expr:expr T_CLOSE_PARENTHESE
+{:
+    RESULT = new ClassName(exprleft, exprright, parser.ast, expr);
+:}
 ;
 
 exit_expr ::=
