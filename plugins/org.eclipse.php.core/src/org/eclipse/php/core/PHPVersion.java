@@ -35,7 +35,7 @@ public enum PHPVersion {
 	 * @since 7.0
 	 */
 	PHP7_4("php7.4"), //$NON-NLS-1$
-	PHP8_0("php8.0"); //$NON-NLS-1$
+	PHP8_0("php8.0"), //$NON-NLS-1$
 	PHP8_1("php8.1"); //$NON-NLS-1$
 
 	private String alias;

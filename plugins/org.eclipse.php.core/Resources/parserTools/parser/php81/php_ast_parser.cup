@@ -92,6 +92,7 @@ terminal String T_IF;
 terminal String T_LNUMBER;
 terminal String T_DNUMBER;
 terminal String T_BNUMBER;
+terminal String T_ONUMBER;
 terminal String T_STRING;
 terminal String T_STRING_VARNAME;
 terminal String T_VARIABLE;
@@ -2989,6 +2990,11 @@ T_LNUMBER:scalar
 | T_BNUMBER:scalar
 {:
 	RESULT = new Scalar(scalarleft, scalarright, parser.ast, scalar, Scalar.TYPE_BIN);
+:}
+
+| T_ONUMBER:scalar
+{:
+	RESULT = new Scalar(scalarleft, scalarright, parser.ast, scalar, Scalar.TYPE_INT);
 :}
 
 | T_LINE:scalar
