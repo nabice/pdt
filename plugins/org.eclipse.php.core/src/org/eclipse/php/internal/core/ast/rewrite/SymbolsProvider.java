@@ -60,6 +60,70 @@ public class SymbolsProvider {
 
 	public static final Symbol ERROR_SYMBOL = new Symbol(Integer.MIN_VALUE);
 
+    	// Pre-defined PHP 8.1 Symbols.
+	private static final Symbol OBJECT_OP_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_OBJECT_OPERATOR);
+	private static final Symbol DOT_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_NEKUDA);
+	private static final Symbol LESS_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_RGREATER);
+	private static final Symbol GREATER_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_LGREATER);
+	private static final Symbol RBRACKET_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CLOSE_RECT);
+	private static final Symbol LBRACKET_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_OPEN_RECT);
+	private static final Symbol RBRACE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CURLY_CLOSE);
+	private static final Symbol LBRACE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CURLY_OPEN);
+	private static final Symbol LPAREN_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_OPEN_PARENTHESE);
+	private static final Symbol RPAREN_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CLOSE_PARENTHESE);
+	private static final Symbol INTERFACE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_INTERFACE);
+	private static final Symbol CLASS_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CLASS);
+	private static final Symbol RETURN_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_RETURN);
+	private static final Symbol BREAK_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_BREAK);
+	private static final Symbol CONTINUE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_CONTINUE);
+	private static final Symbol DO_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_DO);
+	private static final Symbol WHILE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_WHILE);
+	private static final Symbol SEMICOLON_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_SEMICOLON);
+	private static final Symbol THROW_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_THROW);
+	private static final Symbol NEW_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_NEW);
+	private static final Symbol ELSE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ELSE);
+	private static final Symbol IMPLEMENTS_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_IMPLEMENTS);
+	private static final Symbol END_IF_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ENDIF);
+	private static final Symbol END_FOR_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ENDFOR);
+	private static final Symbol END_WHILE_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ENDWHILE);
+	private static final Symbol END_FOREACH_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ENDFOREACH);
+	private static final Symbol END_SWITCH_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_ENDSWITCH);
+	private static final Symbol YIELD_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_YIELD);
+	private static final Symbol FUNCTION_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_FUNCTION);
+	private static final Symbol FN_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_FN);
+	private static final Symbol MATCH_SYMBOL_PHP81 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php81.ParserConstants.T_MATCH);
+    
 	// Pre-defined PHP 8 Symbols.
 	private static final Symbol OBJECT_OP_SYMBOL_PHP8 = new Symbol(
 			org.eclipse.php.internal.core.ast.scanner.php8.ParserConstants.T_OBJECT_OPERATOR);
@@ -121,6 +185,8 @@ public class SymbolsProvider {
 			org.eclipse.php.internal.core.ast.scanner.php8.ParserConstants.T_FUNCTION);
 	private static final Symbol FN_SYMBOL_PHP8 = new Symbol(
 			org.eclipse.php.internal.core.ast.scanner.php8.ParserConstants.T_FN);
+	private static final Symbol MATCH_SYMBOL_PHP8 = new Symbol(
+			org.eclipse.php.internal.core.ast.scanner.php8.ParserConstants.T_MATCH);
 
 	// Pre-defined PHP 7.4 Symbols.
 	private static final Symbol OBJECT_OP_SYMBOL_PHP74 = new Symbol(
