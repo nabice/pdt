@@ -48,7 +48,7 @@ public class ConstantDeclaration extends BodyDeclaration {
 	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
 			ConstantDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			ConstantDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	/**

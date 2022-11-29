@@ -41,7 +41,7 @@ public class InterfaceDeclaration extends TypeDeclaration {
 	public static final ChildPropertyDescriptor BODY_PROPERTY = new ChildPropertyDescriptor(InterfaceDeclaration.class,
 			"body", Block.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			InterfaceDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	@Override

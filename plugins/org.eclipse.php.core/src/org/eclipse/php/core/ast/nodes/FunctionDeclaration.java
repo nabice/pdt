@@ -67,7 +67,7 @@ public class FunctionDeclaration extends Statement {
 			OPTIONAL, CYCLE_RISK);
 
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			FunctionDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	/**

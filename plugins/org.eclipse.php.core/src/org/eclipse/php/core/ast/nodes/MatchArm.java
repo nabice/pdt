@@ -44,7 +44,7 @@ public class MatchArm extends Statement {
 	public static final ChildPropertyDescriptor VALUE_PROPERTY = new ChildPropertyDescriptor(MatchArm.class, "value", //$NON-NLS-1$
                                                                                              Expression.class, OPTIONAL, CYCLE_RISK);
 	public static final ChildListPropertyDescriptor CONDITIONALS_PROPERTY = new ChildListPropertyDescriptor(MatchArm.class,
-																											"actions", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+																											"conditionals", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 	public static final SimplePropertyDescriptor IS_DEFAULT_PROPERTY = new SimplePropertyDescriptor(MatchArm.class,
                                                                                                     "isDefault", Boolean.class, OPTIONAL); //$NON-NLS-1$
 

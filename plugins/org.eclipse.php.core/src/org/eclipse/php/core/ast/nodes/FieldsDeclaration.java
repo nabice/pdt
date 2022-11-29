@@ -47,7 +47,7 @@ public class FieldsDeclaration extends BodyDeclaration {
 	public static final ChildListPropertyDescriptor FIELDS_PROPERTY = new ChildListPropertyDescriptor(
 			FieldsDeclaration.class, "fields", SingleFieldDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			FieldsDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	@Override

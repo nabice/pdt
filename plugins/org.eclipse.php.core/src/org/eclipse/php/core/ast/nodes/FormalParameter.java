@@ -60,10 +60,10 @@ public class FormalParameter extends ASTNode {
 	public static final SimplePropertyDescriptor IS_VARIADIC_PROPERTY = new SimplePropertyDescriptor(
 			FormalParameter.class, "isVariadic", Boolean.class, OPTIONAL); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			FormalParameter.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
-			MethodDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
+			FormalParameter.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:

@@ -64,7 +64,7 @@ public class LambdaFunctionDeclaration extends Expression {
 			LambdaFunctionDeclaration.class, "returnType", ReturnType.class, //$NON-NLS-1$
 			OPTIONAL, CYCLE_RISK);
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			LambdaFunctionDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	/**

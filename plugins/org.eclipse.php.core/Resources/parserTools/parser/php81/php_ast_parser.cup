@@ -166,6 +166,7 @@ terminal String T_VAR_COMMENT;
 terminal String T_DEFINE;
 terminal String T_MATCH;
 terminal T_ATTRIBUTE;
+terminal String T_ENUM;
 
 terminal String T_INCLUDE,T_INCLUDE_ONCE,T_EVAL,T_REQUIRE,T_REQUIRE_ONCE;
 terminal T_COMMA;
@@ -381,6 +382,10 @@ non terminal Integer param_modifiers;
 non terminal List union_type;
 
 non terminal String optional_variable;
+
+//php8.1
+non terminal Identifier enum_scalar_type;
+non terminal Expression enum_case_expr;
 
 precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
@@ -621,6 +626,10 @@ T_INCLUDE:v
 	RESULT = v;
 :}
 | T_MATCH:v
+{:
+	RESULT = v;
+:}
+| T_ENUM:v
 {:
 	RESULT = v;
 :}
@@ -1385,6 +1394,26 @@ T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
 		new Identifier(classNameleft, classNameright, parser.ast, className), interfaces,
 		new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 :}
+
+| optional_attributes:attrs T_ENUM:e T_STRING:className enum_scalar_type:scalarType implements_list:interfaces
+ T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
+ {:
+ 	RESULT = new EnumDeclaration(eleft, blockEndright, parser.ast, ClassDeclaration.MODIFIER_NONE,
+ 		new Identifier(classNameleft, classNameright, parser.ast, className), interfaces,
+ 		new Block(blockStartleft, blockEndright, parser.ast, sList), scalarType, attrs);
+ :}
+;
+
+enum_scalar_type ::=
+/* empty */
+{:
+	RESULT = null;
+:}
+
+| T_NEKUDOTAIM type:t
+{:
+	RESULT = t;
+:}
 ;
 
 class_entry_type ::=
@@ -1989,6 +2018,24 @@ method_body:body
 | trait_use_statement:statement
 {:
 	RESULT = statement;
+:}
+
+| optional_attributes:attrs T_CASE:tc identifier:name enum_case_expr:value T_SEMICOLON:e
+{:
+	RESULT = new EnumCase(tcleft, eright, parser.ast,
+	new Identifier(nameleft, nameright, parser.ast, name),
+	value, attrs);
+:}
+;
+
+enum_case_expr ::=
+/* empty */
+{:
+	RESULT = null;
+:}
+| T_EQUAL expr:expr
+{:
+	RESULT = expr;
 :}
 ;
 

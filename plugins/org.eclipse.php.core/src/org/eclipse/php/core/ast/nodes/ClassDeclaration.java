@@ -39,6 +39,7 @@ public class ClassDeclaration extends TypeDeclaration {
 	public static final int MODIFIER_ABSTRACT = 1;
 	public static final int MODIFIER_FINAL = 2;
 	public static final int MODIFIER_TRAIT = 3;
+	public static final int MODIFIER_ENUM = 4;
 
 	private int modifier;
 	private Expression superClass;
@@ -57,7 +58,7 @@ public class ClassDeclaration extends TypeDeclaration {
 	public static final SimplePropertyDescriptor MODIFIER_PROPERTY = new SimplePropertyDescriptor(
 			ClassDeclaration.class, "modifier", Integer.class, OPTIONAL); //$NON-NLS-1$
 	public static final ChildListPropertyDescriptor ATTR_GROUPS_PROPERTY = new ChildListPropertyDescriptor(
-			AnonymousClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
+			ClassDeclaration.class, "attrGroups", AttributeGroup.class, //$NON-NLS-1$
 			NO_CYCLE_RISK);
 
 	@Override
@@ -299,7 +300,7 @@ public class ClassDeclaration extends TypeDeclaration {
 	}
 
 	@Override
-	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+	ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == SUPER_CLASS_PROPERTY) {
 			if (get) {
 				return getSuperClass();

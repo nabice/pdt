@@ -897,6 +897,16 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getValue(), o.getValue()));
 	}
 
+	public boolean match(EnumCase node, Object other) {
+		if (!(other instanceof EnumCase)) {
+			return false;
+		}
+		EnumCase o = (EnumCase) other;
+
+		return (safeSubtreeMatch(node.getName(), o.getName())
+				&& safeSubtreeMatch(node.getValue(), o.getValue()));
+	}
+
 	public boolean match(SwitchStatement node, Object other) {
 		if (!(other instanceof SwitchStatement)) {
 			return false;
