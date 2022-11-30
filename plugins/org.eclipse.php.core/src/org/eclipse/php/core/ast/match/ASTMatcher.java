@@ -721,6 +721,16 @@ public class ASTMatcher {
 		return safeSubtreeListMatch(node.types(), o.types());
 	}
 
+	public boolean match(IntersectionType node, Object other) {
+		if (!(other instanceof IntersectionType)) {
+			return false;
+		}
+		IntersectionType o = (IntersectionType) other;
+
+		return safeSubtreeListMatch(node.types(), o.types());
+	}
+
+
 	public boolean match(MethodDeclaration node, Object other) {
 		if (!(other instanceof MethodDeclaration)) {
 			return false;

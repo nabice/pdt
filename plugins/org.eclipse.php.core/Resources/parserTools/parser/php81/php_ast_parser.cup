@@ -386,6 +386,7 @@ non terminal String optional_variable;
 //php8.1
 non terminal Identifier enum_scalar_type;
 non terminal Expression enum_case_expr;
+non terminal List intersection_type;
 
 precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
@@ -1864,6 +1865,11 @@ type:type
 {:
     RESULT = new UnionType(unionTypeleft, unionTyperight, parser.ast, unionType);
 :}
+
+| intersection_type:intersectionType
+{:
+    RESULT = new IntersectionType(intersectionTypeleft, intersectionTyperight, parser.ast, intersectionType);
+:}
 ;
 
 union_type ::=
@@ -1878,6 +1884,22 @@ type:t1 T_OR type:t2
 | union_type:list T_OR type:type
 {:
     list.add(type);
+    RESULT = list;
+:}
+;
+
+intersection_type ::=
+type:t1 T_REFERENCE type:t2
+{:
+    List list = new LinkedList();
+    list.add(t1);
+    list.add(t2);
+    RESULT = list;
+:}
+
+| intersection_type:list T_REFERENCE type:t
+{:
+    list.add(t);
     RESULT = list;
 :}
 ;
