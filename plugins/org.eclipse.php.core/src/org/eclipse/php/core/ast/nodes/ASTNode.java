@@ -130,6 +130,7 @@ public abstract class ASTNode implements Visitable {
 	public static final int UNION_TYPE = 87;
 	public static final int ENUM_DECLARATION = 88;
 	public static final int ENUM_CASE = 89;
+	public static final int VARIADIC_PLACEHOLDER = 90;
 
 	/**
 	 * Internal convenience constant indicating that there is definite risk of

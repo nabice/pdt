@@ -482,6 +482,14 @@ public class ASTMatcher {
 		return true;
 	}
 
+	public boolean match(VariadicPlaceholder node, Object other) {
+		if (!(other instanceof VariadicPlaceholder)) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public boolean match(ExpressionStatement node, Object other) {
 		if (!(other instanceof ExpressionStatement)) {
 			return false;

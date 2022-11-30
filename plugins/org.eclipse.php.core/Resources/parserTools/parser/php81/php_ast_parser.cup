@@ -1808,7 +1808,16 @@ non_empty_argument_list:paramsList possible_comma:comma
 {:
 	RESULT = new LinkedList();
 :}
+
+| T_ELLIPSIS:v
+{:
+    List paramsList = new LinkedList();
+    paramsList.add(new VariadicPlaceholder(vleft, vright, parser.ast));
+    RESULT = paramsList;
+:}
 ;
+
+
 
 non_empty_argument_list ::=
 argument:argument
