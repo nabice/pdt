@@ -19,6 +19,7 @@ parser code {:
 	protected final static Integer ABSTRACT = Integer.valueOf(Modifiers.AccAbstract);
 	protected final static Integer FINAL = Integer.valueOf(Modifiers.AccFinal);
 	protected final static Integer STATIC = Integer.valueOf(Modifiers.AccStatic);
+	protected final static Integer READONLY = 262144;  //Modifiers.AccReadonly
 
 	AST ast;
 
@@ -200,7 +201,7 @@ terminal String T_NEW;
 terminal String T_ENDIF;
 terminal String T_ELSEIF;
 terminal String T_ELSE;
-terminal String T_STATIC, T_ABSTRACT, T_FINAL, T_PRIVATE, T_PROTECTED, T_PUBLIC;
+terminal String T_STATIC, T_ABSTRACT, T_FINAL, T_PRIVATE, T_PROTECTED, T_PUBLIC, T_READONLY;
 terminal T_OPEN_PARENTHESE,T_CLOSE_PARENTHESE;
 terminal T_NEKUDOTAIM;
 terminal T_DOLLAR;
@@ -422,7 +423,7 @@ precedence nonassoc T_NEW, T_CLONE;
 precedence left T_ELSEIF;
 precedence left T_ELSE;
 precedence left T_ENDIF;
-precedence right T_STATIC, T_ABSTRACT, T_FINAL, T_PRIVATE, T_PROTECTED, T_PUBLIC;
+precedence right T_STATIC, T_ABSTRACT, T_FINAL, T_PRIVATE, T_PROTECTED, T_PUBLIC, T_READONLY;
 
 thestart ::=
 top_statement_list:sList
@@ -713,6 +714,10 @@ reserved_non_modifiers:v
 	RESULT = v;
 :}
 | T_PUBLIC:v
+{:
+	RESULT = v;
+:}
+| T_READONLY:v
 {:
 	RESULT = v;
 :}
@@ -2311,6 +2316,11 @@ T_PUBLIC
 {:
 	RESULT = PHPAstParser.FINAL;
 :}
+
+| T_READONLY
+{:
+	RESULT = PHPAstParser.READONLY;
+:}
 ;
 
 property_list ::=
@@ -3811,6 +3821,11 @@ T_PUBLIC
 | T_PRIVATE
 {:
 	RESULT = PHPAstParser.PRIVATE;
+:}
+
+| T_READONLY
+{:
+	RESULT = PHPAstParser.READONLY;
 :}
 ;
 
