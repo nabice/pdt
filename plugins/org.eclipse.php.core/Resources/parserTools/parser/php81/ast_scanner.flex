@@ -760,7 +760,6 @@ NOWDOC_CHARS=([^\n\r]|({NEWLINE}{TABS_AND_SPACES})+[^a-zA-Z_\u0080-\uffff\n\r \t
 	")"                     {return createSymbol(ParserConstants.T_CLOSE_PARENTHESE);}
 	"|"                     {return createSymbol(ParserConstants.T_OR);}
 	"^"                     {return createSymbol(ParserConstants.T_KOVA);}
-	"&"                     {return createSymbol(ParserConstants.T_REFERENCE);}
 	"+"                     {return createSymbol(ParserConstants.T_PLUS);}
 	"-"                     {return createSymbol(ParserConstants.T_MINUS);}
 	"/"                     {return createSymbol(ParserConstants.T_DIV);}
@@ -776,6 +775,14 @@ NOWDOC_CHARS=([^\n\r]|({NEWLINE}{TABS_AND_SPACES})+[^a-zA-Z_\u0080-\uffff\n\r \t
 	"?"                     {return createSymbol(ParserConstants.T_QUESTION_MARK);}
 	"@"                     {return createSymbol(ParserConstants.T_AT);}
 	"#["                    {return createSymbol(ParserConstants.T_ATTRIBUTE);}
+}
+
+<ST_IN_SCRIPTING>"&"/{TABS_AND_SPACES}"$" {
+    return createSymbol(ParserConstants.T_REFERENCE_VAR);
+}
+
+<ST_IN_SCRIPTING>"&"/{TABS_AND_SPACES}[^"$"] {
+    return createSymbol(ParserConstants.T_REFERENCE_NO_VAR);
 }
 
 <ST_IN_SCRIPTING>"{" {
@@ -928,7 +935,7 @@ NOWDOC_CHARS=([^\n\r]|({NEWLINE}{TABS_AND_SPACES})+[^a-zA-Z_\u0080-\uffff\n\r \t
 	")"                     {return createSymbol(ParserConstants.T_CLOSE_PARENTHESE);}
 	"|"                     {return createSymbol(ParserConstants.T_OR);}
 	"^"                     {return createSymbol(ParserConstants.T_KOVA);}
-	"&"                     {return createSymbol(ParserConstants.T_REFERENCE);}
+	"&"                     {return createSymbol(ParserConstants.T_REFERENCE_VAR);}
 	"+"                     {return createSymbol(ParserConstants.T_PLUS);}
 	"-"                     {return createSymbol(ParserConstants.T_MINUS);}
 	"/"                     {return createSymbol(ParserConstants.T_DIV);}

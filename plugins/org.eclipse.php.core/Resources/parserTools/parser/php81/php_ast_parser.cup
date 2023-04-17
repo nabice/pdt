@@ -179,7 +179,8 @@ terminal T_SEMICOLON;
 terminal T_BOOLEAN_OR, T_BOOLEAN_AND;
 terminal T_OR;
 terminal T_KOVA;
-terminal T_REFERENCE;
+terminal T_REFERENCE_VAR;
+terminal T_REFERENCE_NO_VAR;
 terminal T_IS_EQUAL,T_IS_NOT_EQUAL,T_IS_IDENTICAL,T_IS_NOT_IDENTICAL;
 terminal T_IS_SMALLER_OR_EQUAL,T_IS_GREATER_OR_EQUAL;
 terminal T_RGREATER;
@@ -231,6 +232,7 @@ non terminal Program thestart;
 non terminal String reserved_non_modifiers;
 non terminal String semi_reserved;
 non terminal String identifier;
+non terminal String ampersand;
 non terminal List namespace_name;
 non terminal UseStatementPart use_declaration;
 non terminal NamespaceName use_namespace_name;
@@ -403,7 +405,8 @@ precedence left T_BOOLEAN_OR;
 precedence left T_BOOLEAN_AND;
 precedence left T_OR;
 precedence left T_KOVA;
-precedence left T_REFERENCE;
+precedence left T_REFERENCE_VAR;
+precedence left T_REFERENCE_NO_VAR;
 precedence left T_ELLIPSIS;
 precedence right T_YIELD;
 precedence right T_DOUBLE_ARROW;
@@ -431,6 +434,17 @@ top_statement_list:sList
 	PHPAstLexer phpAstLexer = (PHPAstLexer) parser.getScanner();
 	List commentList = phpAstLexer.getCommentList();
 	RESULT = new Program(sListleft, sListright, parser.ast, sList, commentList);
+:}
+;
+
+ampersand ::=
+T_REFERENCE_NO_VAR:v
+{:
+    RESULT = "&";
+:}
+| T_REFERENCE_VAR:v
+{:
+    RESULT = "&";
 :}
 ;
 
@@ -1349,7 +1363,7 @@ is_reference ::=
 	RESULT = Boolean.FALSE;
 :}
 
-| T_REFERENCE
+| ampersand
 {:
 	RESULT = Boolean.TRUE;
 :}
@@ -1508,7 +1522,7 @@ variable:var
 	RESULT = var;
 :}
 
-| T_REFERENCE:s variable:var
+| ampersand:s variable:var
 {:
 	RESULT = new Reference (sleft, varright, parser.ast, var);
 :}
@@ -1757,7 +1771,7 @@ optional_attributes:attrs param_modifiers:modifier optional_type:type T_VARIABLE
 	RESULT = new FormalParameter(s, varright, parser.ast, type, v, null, false, true, attrs, modifier);
 :}
 
-| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_VARIABLE:var
+| optional_attributes:attrs param_modifiers:modifier optional_type:type ampersand:ref T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
@@ -1765,7 +1779,7 @@ optional_attributes:attrs param_modifiers:modifier optional_type:type T_VARIABLE
 	RESULT = new FormalParameter(s, varright, parser.ast, type, ref_var, attrs, modifier);
 :}
 
-| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_ELLIPSIS T_VARIABLE:var
+| optional_attributes:attrs param_modifiers:modifier optional_type:type ampersand:ref T_ELLIPSIS T_VARIABLE:var
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
@@ -1780,7 +1794,7 @@ optional_attributes:attrs param_modifiers:modifier optional_type:type T_VARIABLE
 	RESULT = new FormalParameter(s, exprright, parser.ast, type, v, expr, attrs, modifier);
 :}
 
-| optional_attributes:attrs param_modifiers:modifier optional_type:type T_REFERENCE:ref T_VARIABLE:var T_EQUAL expr:expr
+| optional_attributes:attrs param_modifiers:modifier optional_type:type ampersand:ref T_VARIABLE:var T_EQUAL expr:expr
 {:
 	int s = type == null ? refleft : typeleft;
 	Variable v = new Variable(varleft, varright, parser.ast, var);
@@ -1894,7 +1908,7 @@ type:t1 T_OR type:t2
 ;
 
 intersection_type ::=
-type:t1 T_REFERENCE type:t2
+type:t1 T_REFERENCE_NO_VAR type:t2
 {:
     List list = new LinkedList();
     list.add(t1);
@@ -1902,7 +1916,7 @@ type:t1 T_REFERENCE type:t2
     RESULT = list;
 :}
 
-| intersection_type:list T_REFERENCE type:t
+| intersection_type:list ampersand type:t
 {:
     list.add(t);
     RESULT = list;
@@ -2472,7 +2486,7 @@ T_LIST:s T_OPEN_PARENTHESE assignment_list:varList T_CLOSE_PARENTHESE:close T_EQ
 	RESULT = new Assignment(varleft, exprright, parser.ast, var, Assignment.OP_EQUAL, expr);
 :}
 
-| variable:var T_EQUAL T_REFERENCE:reftoken variable:refvar
+| variable:var T_EQUAL ampersand:reftoken variable:refvar
 {:
 	RESULT = new Assignment(varleft, refvarright, parser.ast, var, Assignment.OP_EQUAL, new Reference(reftokenleft, refvarright, parser.ast, refvar));
 :}
@@ -2597,7 +2611,7 @@ T_LIST:s T_OPEN_PARENTHESE assignment_list:varList T_CLOSE_PARENTHESE:close T_EQ
 	RESULT = new InfixExpression(expr1left, expr2right, parser.ast, expr1, InfixExpression.OP_OR, expr2);
 :}
 
-| expr:expr1 T_REFERENCE expr:expr2
+| expr:expr1 ampersand expr:expr2
 {:
 	RESULT = new InfixExpression(expr1left, expr2right, parser.ast, expr1, InfixExpression.OP_AND, expr2);
 :}
@@ -2936,7 +2950,7 @@ T_VARIABLE:var
 	RESULT = new Variable(varleft, varright, parser.ast, var);
 :}
 
-| T_REFERENCE:ref T_VARIABLE:var
+| ampersand:ref T_VARIABLE:var
 {:
 	RESULT = new Reference(refleft, varright, parser.ast, new Variable(varleft, varright, parser.ast, var));
 :}
@@ -3584,12 +3598,12 @@ expr:key T_DOUBLE_ARROW expr:value
 	RESULT = expr;
 :}
 
-| expr:key T_DOUBLE_ARROW T_REFERENCE:s variable:var
+| expr:key T_DOUBLE_ARROW ampersand:s variable:var
 {:
 	RESULT = new ArrayElement(keyleft, varright, parser.ast, key, new Reference(sleft, varright, parser.ast, var));
 :}
 
-| T_REFERENCE:s variable:var
+| ampersand:s variable:var
 {:
 	RESULT = new Reference(sleft, varright, parser.ast, var);
 :}
