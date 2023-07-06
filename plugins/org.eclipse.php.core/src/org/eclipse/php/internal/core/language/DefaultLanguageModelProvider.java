@@ -85,7 +85,10 @@ class DefaultLanguageModelProvider implements ILanguageModelProvider {
 		if (phpVersion == PHPVersion.PHP8_1) {
 			return LANGUAGE_LIBRARY_PATH + "8.1"; //$NON-NLS-1$
 		}
-		return LANGUAGE_LIBRARY_PATH + "8.1"; //$NON-NLS-1$
+		if (phpVersion == PHPVersion.PHP8_2) {
+			return LANGUAGE_LIBRARY_PATH + "8.2"; //$NON-NLS-1$
+		}
+		return LANGUAGE_LIBRARY_PATH + "8.2"; //$NON-NLS-1$
 	}
 
 	@Override

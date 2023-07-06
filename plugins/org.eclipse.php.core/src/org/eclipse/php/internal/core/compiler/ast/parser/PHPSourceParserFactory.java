@@ -97,6 +97,9 @@ public class PHPSourceParserFactory extends AbstractSourceParser implements ISou
 		if (PHPVersion.PHP8_1 == phpVersion) {
 			return new org.eclipse.php.internal.core.compiler.ast.parser.php81.PHPSourceParser(fileName);
 		}
+		if (PHPVersion.PHP8_2 == phpVersion) {
+			return new org.eclipse.php.internal.core.compiler.ast.parser.php82.PHPSourceParser(fileName);
+		}
 		return null;
 	}
 
@@ -143,6 +146,9 @@ public class PHPSourceParserFactory extends AbstractSourceParser implements ISou
 		}
 		if (PHPVersion.PHP8_1 == phpVersion) {
 			return new org.eclipse.php.internal.core.compiler.ast.parser.php81.PHPSourceParser();
+		}
+		if (PHPVersion.PHP8_2 == phpVersion) {
+			return new org.eclipse.php.internal.core.compiler.ast.parser.php82.PHPSourceParser();
 		}
 		return null;
 	}

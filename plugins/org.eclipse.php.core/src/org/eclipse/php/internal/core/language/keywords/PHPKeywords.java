@@ -159,6 +159,8 @@ public class PHPKeywords {
 					instance = new PHPKeywords(new KeywordInitializerPHP_8());
 				} else if (PHPVersion.PHP8_1 == version) {
 					instance = new PHPKeywords(new KeywordInitializerPHP_8_1());
+				} else if (PHPVersion.PHP8_2 == version) {
+					instance = new PHPKeywords(new KeywordInitializerPHP_8_2());
 				} else {
 					if (version == null) {
 						throw new IllegalArgumentException(CoreMessages.getString("UnknownPHPVersion_0")); //$NON-NLS-1$
