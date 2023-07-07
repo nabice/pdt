@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.php.core.PHPVersion;
 import org.eclipse.php.core.ast.match.ASTMatcher;
 import org.eclipse.php.core.ast.visitor.Visitor;
+import org.eclipse.php.core.compiler.PHPFlags;
 
 /**
  * Represents a class declaration
@@ -37,9 +38,10 @@ public class ClassDeclaration extends TypeDeclaration {
 
 	public static final int MODIFIER_NONE = 0;
 	public static final int MODIFIER_ABSTRACT = 1;
-	public static final int MODIFIER_FINAL = 2;
-	public static final int MODIFIER_TRAIT = 3;
-	public static final int MODIFIER_ENUM = 4;
+	public static final int MODIFIER_FINAL = 4;
+	public static final int MODIFIER_TRAIT = 524288;
+	public static final int MODIFIER_ENUM = 1048576;
+	public static final int MODIFIER_READONLY = 262144;
 
 	private int modifier;
 	private Expression superClass;
@@ -191,24 +193,15 @@ public class ClassDeclaration extends TypeDeclaration {
 		accept(visitor);
 	}
 
-	public static String getModifier(int modifier) {
-		switch (modifier) {
-		case MODIFIER_NONE:
-			return ""; //$NON-NLS-1$
-		case MODIFIER_ABSTRACT:
-			return "abstract"; //$NON-NLS-1$
-		case MODIFIER_FINAL:
-			return "final"; //$NON-NLS-1$
-		default:
-			throw new IllegalArgumentException();
-		}
+	public static String getModifierString(int modifier) {
+		return PHPFlags.toString(modifier);
 	}
 
 	@Override
 	public void toString(StringBuilder buffer, String tab) {
 		buffer.append(tab).append("<ClassDeclaration"); //$NON-NLS-1$
 		appendInterval(buffer);
-		buffer.append(" modifier='").append(getModifier(modifier)).append("'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append(" modifier='").append(getModifierString(modifier)).append("'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append(tab).append(TAB).append("<ClassName>\n"); //$NON-NLS-1$
 		getName().toString(buffer, TAB + TAB + tab);
 		buffer.append("\n"); //$NON-NLS-1$

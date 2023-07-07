@@ -2748,11 +2748,10 @@ public final class ASTRewriteAnalyzer extends AbstractVisitor {
 				// The modifier was removed
 				doTextRemove(start, classKeywordStart - start, editGroup);
 				break;
-			case ClassDeclaration.MODIFIER_ABSTRACT:
-			case ClassDeclaration.MODIFIER_FINAL:
+			default:
 				// Replace what we have (if we have it) with the 'abstract' or
 				// the 'final' keyword
-				doTextReplace(start, classKeywordStart - start, ClassDeclaration.getModifier(modifier) + ' ',
+				doTextReplace(start, classKeywordStart - start, ClassDeclaration.getModifierString(modifier) + ' ',
 						editGroup);
 				break;
 			}

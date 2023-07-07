@@ -391,6 +391,10 @@ non terminal Identifier enum_scalar_type;
 non terminal Expression enum_case_expr;
 non terminal List intersection_type;
 
+//php8.2
+non terminal Integer class_modifier;
+non terminal Integer optional_class_modifiers;
+
 precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
 precedence left T_COMMA;
@@ -1437,19 +1441,9 @@ enum_scalar_type ::=
 ;
 
 class_entry_type ::=
-T_CLASS
+optional_class_modifiers:modifiers T_CLASS
 {:
-	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_NONE);
-:}
-
-| T_ABSTRACT T_CLASS
-{:
-	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_ABSTRACT);
-:}
-
-| T_FINAL T_CLASS
-{:
-	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_FINAL);
+	RESULT = modifiers;
 :}
 
 | T_TRAIT
@@ -1457,6 +1451,38 @@ T_CLASS
 	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_TRAIT);
 :}
 ;
+
+class_modifier ::=
+T_ABSTRACT
+{:
+	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_ABSTRACT);
+:}
+
+| T_FINAL
+{:
+	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_FINAL);
+:}
+
+| T_READONLY
+{:
+	RESULT = Integer.valueOf(ClassDeclaration.MODIFIER_READONLY);
+:}
+;
+
+optional_class_modifiers ::=
+/* empty */
+{:
+    RESULT = Integer.valueOf(0);
+:}
+
+| optional_class_modifiers:list class_modifier:modifier
+{:
+	RESULT = Integer.valueOf(list.intValue() | modifier.intValue());
+:}
+;
+
+
+
 
 extends_from ::=
 /* empty */

@@ -110,6 +110,10 @@ public class PHPFlags extends Flags implements IPHPModifiers {
 			sb.append("final "); //$NON-NLS-1$
 		}
 
+		if ((mod & 262144) != 0) {
+			sb.append("readonly "); //$NON-NLS-1$
+		}
+
 		int len;
 		if ((len = sb.length()) > 0) { /* trim trailing space */
 			return sb.toString().substring(0, len - 1);
