@@ -3127,11 +3127,6 @@ variable:v
 {:
 	RESULT = s;
 :}
-
-| constant:c
-{:
-    RESULT = c;
-:}
 ;
 
 callable_expr ::=
