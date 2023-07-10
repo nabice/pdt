@@ -251,7 +251,7 @@ public class FieldsDeclaration extends BodyDeclaration {
 	 *                </ul>
 	 */
 	public void setFieldsType(Expression id) {
-		if (id != null && !(id instanceof Identifier) && !(id instanceof NamespaceName)) {
+		if (id != null && !(id instanceof Identifier) && !(id instanceof NamespaceName) && !(id instanceof IntersectionType) && !(id instanceof UnionType)) {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
