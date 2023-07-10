@@ -232,6 +232,7 @@ non terminal Program thestart;
 non terminal String reserved_non_modifiers;
 non terminal String semi_reserved;
 non terminal String identifier;
+non terminal String string_st_maybe_readonly;
 non terminal String ampersand;
 non terminal List namespace_name;
 non terminal UseStatementPart use_declaration;
@@ -1375,7 +1376,7 @@ is_reference ::=
 ;
 
 unticked_function_declaration_statement ::=
-T_FUNCTION:s is_reference:isReference string_st:fn
+T_FUNCTION:s is_reference:isReference string_st_maybe_readonly:fn
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
@@ -1384,7 +1385,7 @@ T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
 		new Block(blockStartleft, blockEndright, parser.ast, sList), isReference.booleanValue(), returnType, null);
 :}
 
-| attributes:attrs T_FUNCTION:s is_reference:isReference string_st:fn
+| attributes:attrs T_FUNCTION:s is_reference:isReference string_st_maybe_readonly:fn
 T_OPEN_PARENTHESE parameter_list:paramList T_CLOSE_PARENTHESE return_type:returnType
 T_CURLY_OPEN:blockStart inner_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
@@ -3003,6 +3004,15 @@ name:list T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARE
 		new FunctionName(listleft, listright, parser.ast, list), parameters);
 :}
 
+|T_READONLY:readonly T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARENTHESE:e
+{:
+    List list = new LinkedList();
+    list.add(new Identifier(readonlyleft, readonlyright, parser.ast, readonly));
+    NamespaceName id = new NamespaceName(readonlyleft, readonlyright, parser.ast, list, false, false);
+	RESULT = new FunctionInvocation(readonlyleft, eright, parser.ast,
+		new FunctionName(readonlyleft, readonlyright, parser.ast, id), parameters);
+:}
+
 | class_name:className T_PAAMAYIM_NEKUDOTAYIM member_name:reflectionName T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARENTHESE:e
 {:
 	RESULT = new StaticMethodInvocation(classNameleft, eright, parser.ast, className,
@@ -3828,6 +3838,17 @@ variable:var
 {:
 	varList.add(var);
 	RESULT = varList;
+:}
+;
+
+string_st_maybe_readonly ::=
+string_st:v
+{:
+    RESULT = v;
+:}
+| T_READONLY:v
+{:
+    RESULT = v;
 :}
 ;
 
