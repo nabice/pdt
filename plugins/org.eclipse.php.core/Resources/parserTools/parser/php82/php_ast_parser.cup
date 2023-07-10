@@ -383,6 +383,7 @@ non terminal Integer property_modifier;
 non terminal List optional_property_modifiers;
 non terminal Integer param_modifiers;
 non terminal List union_type;
+non terminal Expression union_type_element;
 
 non terminal String optional_variable;
 
@@ -1917,8 +1918,21 @@ type:type
 :}
 ;
 
+union_type_element ::=
+type:t1
+{:
+    RESULT = t1;
+:}
+
+| T_OPEN_PARENTHESE type_expr:t1 T_CLOSE_PARENTHESE
+{:
+    RESULT = t1;
+:}
+;
+
+
 union_type ::=
-type:t1 T_OR type:t2
+union_type_element:t1 T_OR union_type_element:t2
 {:
 	List list = new LinkedList();
 	list.add(t1);
@@ -1926,7 +1940,7 @@ type:t1 T_OR type:t2
 	RESULT = list;
 :}
 
-| union_type:list T_OR type:type
+| union_type:list T_OR union_type_element:type
 {:
     list.add(type);
     RESULT = list;

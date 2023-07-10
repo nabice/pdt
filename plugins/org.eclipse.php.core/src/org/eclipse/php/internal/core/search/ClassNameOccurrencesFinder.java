@@ -190,9 +190,20 @@ public class ClassNameOccurrencesFinder extends AbstractOccurrencesFinder {
 		if (returnType instanceof Identifier) {
 			dealIdentifier((Identifier) returnType);
 		} else if (returnType instanceof UnionType) {
-			for(Identifier identifier:((UnionType) returnType).types()) {
+			for(Expression expression:((UnionType) returnType).types()) {
+				if(expression instanceof Identifier) {
+					dealIdentifier((Identifier) expression);
+				} else if(expression instanceof IntersectionType) {
+					for(Identifier identifier:((IntersectionType) expression).types()) {
+						dealIdentifier(identifier);
+					}
+				}
+			}
+		} else if(returnType instanceof IntersectionType) {
+			for(Identifier identifier:((IntersectionType) returnType).types()) {
 				dealIdentifier(identifier);
 			}
+
 		}
 		return true;
 	}

@@ -32,13 +32,13 @@ import java.util.List;
  */
 public class UnionType extends Expression {
 
-	private final NodeList<Identifier> types = new NodeList<>(TYPES_PROPERTY);
+	private final NodeList<Expression> types = new NodeList<>(TYPES_PROPERTY);
 
 	/**
 	 * The structural property of this node type.
 	 */
 	public static final ChildListPropertyDescriptor TYPES_PROPERTY = new ChildListPropertyDescriptor(
-            UnionType.class, "types", Identifier.class, CYCLE_RISK); //$NON-NLS-1$
+            UnionType.class, "types", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -56,7 +56,7 @@ public class UnionType extends Expression {
 		super(ast);
 	}
 
-	public UnionType(int start, int end, AST ast, List<Identifier> types) {
+	public UnionType(int start, int end, AST ast, List<Expression> types) {
 		super(start, end, ast);
 
 		if (types == null) {
@@ -117,7 +117,7 @@ public class UnionType extends Expression {
 	/**
 	 * @return the list of types
 	 */
-	public List<Identifier> types() {
+	public List<Expression> types() {
 		return types;
 	}
 
@@ -141,7 +141,7 @@ public class UnionType extends Expression {
 
 	@Override
 	ASTNode clone0(AST target) {
-		final List<Identifier> variables = ASTNode.copySubtrees(target, types());
+		final List<Expression> variables = ASTNode.copySubtrees(target, types());
 		return new UnionType(getStart(), getEnd(), target, variables);
 	}
 
