@@ -336,6 +336,7 @@ non terminal List interface_list;
 non terminal Expression optional_type;
 non terminal Integer variable_modifiers;
 non terminal VariableBase constant;
+non terminal VariableBase class_constant;
 non terminal VariableBase static_member;
 non terminal VariableBase new_variable;
 non terminal List isset_variables;
@@ -3067,6 +3068,11 @@ T_LNUMBER:scalar
 {:
 	RESULT = ref;
 :}
+
+| class_constant:ref
+{:
+	RESULT = ref;
+:}
 ;
 
 /* do nothing */
@@ -3126,6 +3132,11 @@ variable:v
 | dereferencable_scalar:s
 {:
 	RESULT = s;
+:}
+
+| class_constant:c
+{:
+    RESULT = c;
 :}
 ;
 
@@ -3207,8 +3218,10 @@ name:name
 {:
 	RESULT = detectScalar(name);
 :}
+;
 
-| class_name:className T_PAAMAYIM_NEKUDOTAYIM identifier:constName
+class_constant ::=
+class_name:className T_PAAMAYIM_NEKUDOTAYIM identifier:constName
 {:
 	RESULT = new StaticConstantAccess(classNameleft, constNameright, parser.ast, className, new Identifier(constNameleft, constNameright, parser.ast, constName));
 :}
