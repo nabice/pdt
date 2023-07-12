@@ -321,6 +321,7 @@ non terminal ASTNode[] class_const_decl;
 non terminal Integer method_modifiers;
 non terminal Block method_body;
 non terminal List non_empty_member_modifiers;
+non terminal List non_empty_class_modifiers;
 non terminal Integer member_modifier;
 non terminal FunctionDeclaration function_declaration_statement;
 non terminal Statement class_declaration_statement;
@@ -396,7 +397,7 @@ non terminal List intersection_type;
 
 //php8.2
 non terminal Integer class_modifier;
-non terminal Integer optional_class_modifiers;
+non terminal Integer class_modifiers;
 
 precedence right T_THROW;
 precedence left T_INCLUDE, T_INCLUDE_ONCE, T_EVAL, T_REQUIRE, T_REQUIRE_ONCE;
@@ -1401,12 +1402,13 @@ optional_attributes:attrs class_entry_type:modifier T_STRING:className
 extends_from:superClass implements_list:interfaces
 T_CURLY_OPEN:blockStart class_statement_list:sList T_CURLY_CLOSE:blockEnd
 {:
-	if (modifier.intValue() == ClassDeclaration.MODIFIER_TRAIT) {
+	int modifierValue = modifier == null ? 0 : modifier.intValue();
+	if (modifierValue == ClassDeclaration.MODIFIER_TRAIT) {
 		RESULT = new TraitDeclaration(modifierleft, blockEndright, parser.ast, ClassDeclaration.MODIFIER_NONE,
 			new Identifier(classNameleft, classNameright, parser.ast, className), superClass, interfaces,
 			new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 	}else{
-		RESULT = new ClassDeclaration(modifierleft, blockEndright, parser.ast, modifier.intValue(),
+		RESULT = new ClassDeclaration(modifierleft, blockEndright, parser.ast, modifierValue,
 			new Identifier(classNameleft, classNameright, parser.ast, className), superClass, interfaces,
 			new Block(blockStartleft, blockEndright, parser.ast, sList), attrs);
 	}
@@ -1444,7 +1446,7 @@ enum_scalar_type ::=
 ;
 
 class_entry_type ::=
-optional_class_modifiers:modifiers T_CLASS
+class_modifiers:modifiers T_CLASS
 {:
 	RESULT = modifiers;
 :}
@@ -1472,20 +1474,37 @@ T_ABSTRACT
 :}
 ;
 
-optional_class_modifiers ::=
+class_modifiers ::=
 /* empty */
 {:
-    RESULT = Integer.valueOf(0);
+	RESULT = null;
 :}
 
-| optional_class_modifiers:list class_modifier:modifier
+| non_empty_class_modifiers:list
 {:
-	RESULT = Integer.valueOf(list.intValue() | modifier.intValue());
+	int result = 0;
+	for (Iterator it = list.iterator(); it.hasNext();) {
+		Integer modifier = (Integer) it.next();
+		result |= modifier.intValue();
+	}
+	RESULT = Integer.valueOf(result);
 :}
 ;
 
+non_empty_class_modifiers ::=
+class_modifier:modifier
+{:
+	List list = new LinkedList();
+	list.add(modifier);
+	RESULT = list;
+:}
 
-
+| non_empty_class_modifiers:list class_modifier:modifier
+{:
+	list.add(modifier);
+	RESULT = list;
+:}
+;
 
 extends_from ::=
 /* empty */
@@ -3003,15 +3022,6 @@ name:list T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARE
 {:
 	RESULT = new FunctionInvocation(listleft, eright, parser.ast,
 		new FunctionName(listleft, listright, parser.ast, list), parameters);
-:}
-
-|T_READONLY:readonly T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARENTHESE:e
-{:
-    List list = new LinkedList();
-    list.add(new Identifier(readonlyleft, readonlyright, parser.ast, readonly));
-    NamespaceName id = new NamespaceName(readonlyleft, readonlyright, parser.ast, list, false, false);
-	RESULT = new FunctionInvocation(readonlyleft, eright, parser.ast,
-		new FunctionName(readonlyleft, readonlyright, parser.ast, id), parameters);
 :}
 
 | class_name:className T_PAAMAYIM_NEKUDOTAYIM member_name:reflectionName T_OPEN_PARENTHESE function_call_parameter_list:parameters T_CLOSE_PARENTHESE:e
